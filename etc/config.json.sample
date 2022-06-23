@@ -1,0 +1,11 @@
+{
+  "liteClient": {
+    "bin": "/path/to/lite-client",
+    "config": "/path/to/global_config.json",
+    "retries": 3,
+    "timeout": 15
+  },
+  "elections": {
+    "url": "https://elections.toncenter.com"
+  }
+}
