@@ -55,3 +55,18 @@ def nt2t(tons):
 
 def console_log(message):
     print("{}: {}".format(get_datetime_string(time.time()), message))
+
+def mk_utemp(prefix):
+    path = "{}.{}".format(prefix,os.getuid())
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    if os.path.exists(path) and os.path.isdir(path) and os.access(path, os.W_OK):
+        return path
+    else:
+        raise Exception("path {} does not exist or is not writable.".format(path))
+
+
+
+
+
