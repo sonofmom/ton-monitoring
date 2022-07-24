@@ -4,6 +4,7 @@ import sys
 import os
 import argparse
 import datetime
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
 import Classes.AppConfig as AppConfig
@@ -23,16 +24,9 @@ async def run():
     start_time = datetime.datetime.now()
     cfg.log.log(os.path.basename(__file__), 3, "Initializing client")
     loop = asyncio.get_running_loop()
-    keystore = "/tmp/pytonlib"
-    try:
-        keystore = gt.mk_utemp(keystore)
-    except Exception as e:
-        cfg.log.log(os.path.basename(__file__), 1, "Could not fetch user temp: " + str(e))
-        sys.exit(1)
-
     tonclient = TonlibClient(ls_index=random.randint(0,len(cfg.ls_config["liteservers"])-1),
                           config=cfg.ls_config,
-                          keystore=keystore,
+                          keystore=cfg.cache_path,
                           loop=loop)
 
     await tonclient.init()

@@ -4,10 +4,11 @@
 import sys
 import os
 import argparse
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
 import Classes.AppConfig as AppConfig
-import requests
+import Classes.TonElections as TonElections
 
 def run():
     description = "Checks if node is participating in elections.\n" \
@@ -18,25 +19,9 @@ def run():
     ar.set_standard_args(parser)
     parser.add_argument('adnl', nargs=1, help='ADNL address of node - REQUIRED')
     cfg = AppConfig.AppConfig(parser.parse_args())
+    te = TonElections.TonElections(cfg,cfg.log)
 
-    cfg.log.log(os.path.basename(__file__), 3, "Executing getElections query.")
-    payload = {
-        "return_participants": True,
-        "limit": 1,
-        "offset": 0
-    }
-
-    try:
-        result = requests.get("{}/getElections".format(cfg.config["elections"]["url"]), payload)
-    except Exception as e:
-        cfg.log.log(os.path.basename(__file__), 1, "Could not execute query: " + str(e))
-        sys.exit(1)
-
-    if result.ok != True:
-        cfg.log.log(os.path.basename(__file__), 1, "Could not retrieve information, code {}".format(result.status_code))
-        sys.exit(1)
-
-    election = result.json()[0]
+    election = te.get_last_election()
 
     if election['finished']:
         cfg.log.log(os.path.basename(__file__), 3, "Election is closed")
@@ -51,25 +36,9 @@ def run():
         sys.exit(0)
 
     cfg.log.log(os.path.basename(__file__), 3, "Node is not participating")
-    cfg.log.log(os.path.basename(__file__), 3, "Executing getValidationCycles query.")
-    payload = {
-        "return_participants": False,
-        "limit": 1,
-        "offset": 0
-    }
 
-    try:
-        result = requests.get("{}/getValidationCycles".format(cfg.config["elections"]["url"]), payload)
-    except Exception as e:
-        cfg.log.log(os.path.basename(__file__), 1, "Could not execute query: " + str(e))
-        sys.exit(1)
-
-    if result.ok != True:
-        cfg.log.log(os.path.basename(__file__), 1, "Could not retrieve information, code {}".format(result.status_code))
-        sys.exit(1)
-
-    cycle = result.json()
-    election["elect_start"] = election["election_id"] - cycle[0]["config15"]["elections_start_before"]
+    cycle = te.get_current_cycle()
+    election["elect_start"] = election["election_id"] - cycle["config15"]["elections_start_before"]
 
     cfg.log.log(os.path.basename(__file__), 3, "Node is not participating")
     print(gt.get_timestamp() - election["elect_start"])
