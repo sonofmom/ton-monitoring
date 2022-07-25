@@ -1,4 +1,4 @@
-import os, sys
+import os, psutil
 import time
 import socket, struct, random, string
 import datetime, re
@@ -104,9 +104,9 @@ def ton_log_tail_n_seek(file, time_offset, grep = None):
             loop += 1
             bytes_offset = file_size - buffer_size * loop
             fh.seek(bytes_offset)
-            chunk = fh.read(1024)
-            a = get_timestamp() - parse_log_timestamp(chunk).timestamp()
-            if (parse_log_timestamp(chunk).timestamp() + time_offset <= get_timestamp()) or fh.tell() == 0:
+            chunk = fh.read(buffer_size)
+            chunk_ts = parse_log_timestamp(chunk)
+            if (chunk_ts and chunk_ts.timestamp() + time_offset <= get_timestamp()) or fh.tell() == 0:
                 break
 
         fh.seek(bytes_offset)
@@ -127,3 +127,15 @@ def parse_log_timestamp(line):
         result = datetime.datetime.fromisoformat("{}+00:00".format(match.group(1)))
 
     return result
+
+def get_process_pid(process):
+        result = None
+        for proc in psutil.process_iter():
+            try:
+                pinfo = proc.as_dict()
+                if pinfo['exe'] == process:
+                    result = pinfo['pid']
+                    break
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+        return result

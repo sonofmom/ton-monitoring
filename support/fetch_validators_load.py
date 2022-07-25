@@ -80,6 +80,7 @@ def run():
         print(runtime.microseconds/1000)
     else:
         if cfg.args.output:
+            cfg.log.log(os.path.basename(__file__), 3, "Writing output to '{}'".format(cfg.args.output))
             f = open(cfg.args.output, "w")
             f.write(json.dumps(result))
             f.close()
