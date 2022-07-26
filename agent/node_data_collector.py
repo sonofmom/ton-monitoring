@@ -7,6 +7,7 @@ import argparse
 import json
 import re
 import glob
+import subprocess
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from Classes.Logger import Logger
 import Libraries.tools.general as gt
@@ -63,6 +64,17 @@ def run(cfg, args, log):
     data = {
         "timestamp": gt.get_timestamp()
     }
+
+
+    log.log(os.path.basename(__file__), 3, "Extracting validator engine build info")
+    process = subprocess.run([cfg["files"]["validator_engine"],"--version"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                             timeout=15)
+    match = re.match(r'.+\[ Commit: (\w+).+', process.stdout.decode("utf-8"), re.M | re.I)
+    if match:
+        data["validator-engine-version"] = match.group(1)
+
+    log.log(os.path.basename(__file__), 3, "Finding out PID for process '{}'".format(cfg["files"]["validator_engine"]))
+    data["validator-engine-pid"] = gt.get_process_pid(cfg["files"]["validator_engine"])
 
     log.log(os.path.basename(__file__), 3, "Finding out PID for process '{}'".format(cfg["files"]["validator_engine"]))
     data["validator-engine-pid"] = gt.get_process_pid(cfg["files"]["validator_engine"])
