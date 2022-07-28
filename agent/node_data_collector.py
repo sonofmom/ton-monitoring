@@ -8,6 +8,7 @@ import json
 import re
 import glob
 import subprocess
+import requests
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from Classes.Logger import Logger
 import Libraries.tools.general as gt
@@ -73,8 +74,17 @@ def run(cfg, args, log):
     if match:
         data["validator-engine-version"] = match.group(1)
 
-    log.log(os.path.basename(__file__), 3, "Finding out PID for process '{}'".format(cfg["files"]["validator_engine"]))
-    data["validator-engine-pid"] = gt.get_process_pid(cfg["files"]["validator_engine"])
+        versions = get_software_versions(cfg["software_versions"]["url"], log)
+        commits = get_github_commits(cfg["software_versions"]["git_repositories"]["node"], log)
+
+        if data["validator-engine-version"] in commits and versions["node"] in commits:
+            if commits.index(data["validator-engine-version"]) <= commits.index(versions["node"]):
+                data["validator-engine-version-check"] = 0
+            else:
+                data["validator-engine-version-check"] = 1
+        else:
+            cfg.log.log(os.path.basename(__file__), 3, "Some versions could not be found, unknown result")
+            data["validator-engine-version-check"] = 2
 
     log.log(os.path.basename(__file__), 3, "Finding out PID for process '{}'".format(cfg["files"]["validator_engine"]))
     data["validator-engine-pid"] = gt.get_process_pid(cfg["files"]["validator_engine"])
@@ -104,6 +114,41 @@ def run(cfg, args, log):
         f.close()
     else:
         print(json.dumps(data))
+
+def get_github_commits(url, log):
+    log.log(os.path.basename(__file__), 3, "Loading github commits using URL '{}'".format(url))
+    try:
+        rs = requests.get(url)
+    except Exception as e:
+        log.log(os.path.basename(__file__), 1, "Could not execute query: {}".format(str(e)))
+        sys.exit(1)
+
+    if rs.ok != True:
+        log.log(os.path.basename(__file__), 1,
+                    "Could not retrieve information, code {}".format(rs.status_code))
+        sys.exit(1)
+
+    data = rs.json()
+    result = []
+    for element in data:
+        result.append(element['sha'])
+
+    return result
+
+def get_software_versions(url, log):
+    log.log(os.path.basename(__file__), 3, "Fetching software versions.")
+    try:
+        rs = requests.get(url)
+    except Exception as e:
+        log.log(os.path.basename(__file__), 1, "Could not execute query: {}".format(str(e)))
+        sys.exit(1)
+
+    if rs.ok != True:
+        log.log(os.path.basename(__file__), 1,
+                    "Could not retrieve information, code {}".format(rs.status_code))
+        sys.exit(1)
+
+    return rs.json()
 
 def slow_count(file, period, data):
     lines = gt.ton_log_tail_n_seek(file, period)

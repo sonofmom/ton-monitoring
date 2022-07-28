@@ -3,5 +3,11 @@
     "validator_engine": "/path/to/lite-client",
     "main_log": "/path/to/main/node.log",
     "threads_log": "/path/to/main/node.log.thread*"
+  },
+  "software_versions": {
+    "url": "https://software-versions.toncenter.com/",
+    "git_repositories": {
+      "node": "https://api.github.com/repos/ton-blockchain/ton/commits?per_page=100"
+    }
   }
 }
