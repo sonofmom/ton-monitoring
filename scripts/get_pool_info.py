@@ -24,7 +24,7 @@ async def run():
                         default=0,
                         dest='info',
                         action='store',
-                        help='One of: nominators_count, nominators_balance, validator_balance, total_balance')
+                        help='One of: state, nominators_count, nominators_balance, validator_balance, total_balance')
     parser.add_argument('addresses', nargs='+', help='One or more pool addresses - REQUIRED')
     cfg = AppConfig.AppConfig(parser.parse_args())
 
@@ -46,7 +46,11 @@ async def run():
     await tonclient.close()
 
     result = 0
-    if cfg.args.info == 'nominators_count':
+    if cfg.args.info == 'state':
+        cfg.log.log(os.path.basename(__file__), 3, "Returning pool state")
+        result = get_pool_state(data[cfg.args.addresses[0]]["get_pool_data"])
+
+    elif cfg.args.info == 'nominators_count':
         cfg.log.log(os.path.basename(__file__), 3, "Returning nominators count")
         for address in data:
             result += len(data[address]["list_nominators"]["stack"][0][1]["elements"])
@@ -95,6 +99,10 @@ def get_pool_nominators_balance(data):
 
 def get_pool_validator_balance(data):
     return int(data["stack"][3][1], base=16)
+
+def get_pool_state(data):
+    return int(data["stack"][0][1], base=16)
+
 
 if __name__ == '__main__':
     asyncio.run(run())
