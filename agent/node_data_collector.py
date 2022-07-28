@@ -76,15 +76,15 @@ def run(cfg, args, log):
 
         versions = get_software_versions(cfg["software_versions"]["url"], log)
         commits = get_github_commits(cfg["software_versions"]["git_repositories"]["node"], log)
-
-        if data["validator-engine-version"] in commits and versions["node"] in commits:
-            if commits.index(data["validator-engine-version"]) <= commits.index(versions["node"]):
-                data["validator-engine-version-check"] = 0
+        if versions and commits:
+            if data["validator-engine-version"] in commits and versions["node"] in commits:
+                if commits.index(data["validator-engine-version"]) <= commits.index(versions["node"]):
+                    data["validator-engine-version-check"] = 0
+                else:
+                    data["validator-engine-version-check"] = 1
             else:
-                data["validator-engine-version-check"] = 1
-        else:
-            cfg.log.log(os.path.basename(__file__), 3, "Some versions could not be found, unknown result")
-            data["validator-engine-version-check"] = 2
+                cfg.log.log(os.path.basename(__file__), 3, "Some versions could not be found, unknown result")
+                data["validator-engine-version-check"] = 2
 
     log.log(os.path.basename(__file__), 3, "Finding out PID for process '{}'".format(cfg["files"]["validator_engine"]))
     data["validator-engine-pid"] = gt.get_process_pid(cfg["files"]["validator_engine"])
@@ -121,12 +121,12 @@ def get_github_commits(url, log):
         rs = requests.get(url)
     except Exception as e:
         log.log(os.path.basename(__file__), 1, "Could not execute query: {}".format(str(e)))
-        sys.exit(1)
+        return None
 
     if rs.ok != True:
         log.log(os.path.basename(__file__), 1,
                     "Could not retrieve information, code {}".format(rs.status_code))
-        sys.exit(1)
+        return None
 
     data = rs.json()
     result = []
@@ -141,12 +141,12 @@ def get_software_versions(url, log):
         rs = requests.get(url)
     except Exception as e:
         log.log(os.path.basename(__file__), 1, "Could not execute query: {}".format(str(e)))
-        sys.exit(1)
+        return None
 
     if rs.ok != True:
         log.log(os.path.basename(__file__), 1,
                     "Could not retrieve information, code {}".format(rs.status_code))
-        sys.exit(1)
+        return None
 
     return rs.json()
 
