@@ -5,7 +5,28 @@
     "retries": 3,
     "timeout": 15
   },
+  "caches": {
+    "path": "/tmp",
+    "prefix": "ton-validator-zabbix",
+    "ttl": {
+      "election_cycles": 60,
+      "elections": 60,
+      "complaints": 60,
+      "efficiency": 300,
+      "versions": 7200
+    }
+  },
+  "toncenter": {
+    "url": "https://toncenter.com/api/v2/jsonRPC",
+    "api_token": ""
+  },
   "elections": {
     "url": "https://elections.toncenter.com"
+  },
+  "software_versions": {
+    "url": "https://software-versions.toncenter.com/",
+    "git_repositories": {
+      "node": "https://api.github.com/repos/ton-blockchain/ton/commits?per_page=100"
+    }
   }
 }

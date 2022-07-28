@@ -1,0 +1,7 @@
+{
+  "files": {
+    "validator_engine": "/path/to/lite-client",
+    "main_log": "/path/to/main/node.log",
+    "threads_log": "/path/to/main/node.log.thread*"
+  }
+}
