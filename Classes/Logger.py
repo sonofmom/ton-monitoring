@@ -1,6 +1,5 @@
-import os
-import Libraries.tools.general as gt
 import time
+import Libraries.tools.general as gt
 
 class Logger:
     def __init__(self, verbosity):

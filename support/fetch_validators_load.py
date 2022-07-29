@@ -3,16 +3,15 @@
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import argparse
-import datetime
+import json
 import time
-import requests
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Classes.AppConfig as AppConfig
 import Classes.LiteClient as LiteClient
 import Classes.TonNetwork as TonNetwork
-import json
+import Classes.TonElections as TonElections
 
 def run():
     description = 'Fetches validators load statistics from blockchain, maps it to ADNL and returns JSON'
@@ -31,24 +30,9 @@ def run():
     cfg = AppConfig.AppConfig(parser.parse_args())
     lc = LiteClient.LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
     tn = TonNetwork.TonNetwork(lc, cfg.log)
+    te = TonElections.TonElections(cfg, cfg.log)
 
-    start_time = datetime.datetime.now()
-    cfg.log.log(os.path.basename(__file__), 3, 'Fetching validation cycles list from elections server')
-    try:
-        rs = requests.get("{}/getValidationCycles?return_participants=true&offset=0&limit=2".format(cfg.config["elections"]["url"])).json()
-    except Exception as e:
-        cfg.log.log(os.path.basename(__file__), 1, "Could not perform elections request: " + str(e))
-        sys.exit(1)
-
-    cfg.log.log(os.path.basename(__file__), 3, "Looking for active cycle")
-    dt = datetime.datetime.now(datetime.timezone.utc)
-    now = dt.replace(tzinfo=datetime.timezone.utc).timestamp()
-    vdata = None
-    for record in rs:
-        if record["cycle_info"]["utime_since"] < now and record["cycle_info"]["utime_until"] >= now:
-            vdata = record
-            break
-
+    vdata = te.get_current_cycle()
     if not vdata:
         cfg.log.log(os.path.basename(__file__), 1, "Could not find active validation cycle")
         sys.exit(1)
@@ -72,20 +56,16 @@ def run():
         if record:
             result[i]["adnl_addr"] = record["adnl_addr"]
 
-    runtime = (datetime.datetime.now() - start_time)
     if not result:
         cfg.log.log(os.path.basename(__file__), 1, 'Could not retrieve information.')
         sys.exit(1)
-    elif cfg.args.get_time:
-        print(runtime.microseconds/1000)
+    elif cfg.args.output:
+        cfg.log.log(os.path.basename(__file__), 3, "Writing output to '{}'".format(cfg.args.output))
+        f = open(cfg.args.output, "w")
+        f.write(json.dumps(result))
+        f.close()
     else:
-        if cfg.args.output:
-            cfg.log.log(os.path.basename(__file__), 3, "Writing output to '{}'".format(cfg.args.output))
-            f = open(cfg.args.output, "w")
-            f.write(json.dumps(result))
-            f.close()
-        else:
-            print(json.dumps(result))
+        print(json.dumps(result))
 
 if __name__ == '__main__':
     run()

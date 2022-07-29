@@ -1,4 +1,9 @@
-# ton-validator-zabbix
-Collection of scripts and templates for monitoring of ton nodes / validators via Zabbix
+## TON Validator monitoring scripts and zabbix templates 
+### Table of contents
+1. [Introduction](#introduction)
+2. [Data collectors](#data_collectors)
+3. [Zabbix templates](#zabbix-templates)
+    * [TON Liteserver](#zabbix-templates-ton-liteserver)
 
-Detailed documentation WIP and will be provided with first complete release
+## <a id="introduction"></a>Introduction
+WIP

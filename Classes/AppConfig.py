@@ -26,18 +26,19 @@ class AppConfig:
                 self.log.log(self.__class__.__name__, 1, "Configuration file read error: {}".format(str(e)))
                 sys.exit(1)
 
-            fn = self.config["liteClient"]["config"];
-            self.log.log(self.__class__.__name__, 3, 'LS Config file {}'.format(fn))
-            if not gt.check_file_exists(fn):
-                self.log.log(self.__class__.__name__, 1, "LS Configuration file does not exist!")
-                sys.exit(1)
-            try:
-                fh = open(fn, 'r')
-                self.ls_config = json.loads(fh.read())
-                fh.close()
-            except Exception as e:
-                self.log.log(self.__class__.__name__, 1, "LS Configuration file read error: {}".format(str(e)))
-                sys.exit(1)
+            if "liteClient" in self.config:
+                fn = self.config["liteClient"]["config"];
+                self.log.log(self.__class__.__name__, 3, 'LS Config file {}'.format(fn))
+                if not gt.check_file_exists(fn):
+                    self.log.log(self.__class__.__name__, 1, "LS Configuration file does not exist!")
+                    sys.exit(1)
+                try:
+                    fh = open(fn, 'r')
+                    self.ls_config = json.loads(fh.read())
+                    fh.close()
+                except Exception as e:
+                    self.log.log(self.__class__.__name__, 1, "LS Configuration file read error: {}".format(str(e)))
+                    sys.exit(1)
 
             if "caches" in self.config:
                 self.cache_path = "{}/{}.{}".format(self.config["caches"]["path"],self.config["caches"]["prefix"], os.getuid())

@@ -1,8 +1,6 @@
 import subprocess
 import time
-import os
-import signal
-
+import re
 
 class LiteClient:
     def __init__(self, args, config, log):
@@ -117,5 +115,35 @@ class LiteClient:
                 result = text
 
         return result
+
+    def last(self):
+        self.log.log(self.__class__.__name__, 3, 'Retrieving last block info')
+
+        try:
+            output = self.exec('last')
+        except Exception as e:
+            self.log.log(self.__class__.__name__, 1, "Could not execute `last`: " + str(e))
+            return None
+
+        match = re.match(r'.+server is (.*) created at \d* \((\d+) seconds ago\)', output, re.M | re.I)
+        if (match):
+            self.log.log(self.__class__.__name__, 3, 'Last block {} seconds ago'.format(match.group(2)))
+            return {
+                'ago': match.group(2),
+                'block': self.parse_block_info(match.group(1))
+            }
+
+    def parse_block_info(self, as_string):
+        match = re.match(r'\((-?\d*),(\d*),(\d*)\)|(\w*):(\w*).+', as_string, re.M | re.I)
+        if match:
+            return {
+                "as_string": match.group(),
+                "chain": match.group(1),
+                "shard": match.group(2),
+                "seqno": match.group(3),
+                "roothash": match.group(4),
+                "filehash": match.group(5)
+            }
+
     # end define
 # end class

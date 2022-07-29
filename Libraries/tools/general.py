@@ -1,7 +1,15 @@
-import os, psutil
+import datetime
+import json
+import os
+import psutil
+import random
+import re
+import requests
+import socket
+import string
+import struct
+import sys
 import time
-import socket, struct, random, string
-import datetime, re
 
 def check_path_writable(path):
     if os.path.exists(path) and os.path.isdir(path) and os.access(path, os.W_OK):
@@ -139,3 +147,50 @@ def get_process_pid(process):
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
         return result
+
+def send_api_query(url, payload=None, method=None, headers=None):
+    try:
+        if method == 'post':
+            result = requests.post(url, json=payload, headers=headers)
+        else:
+            result = requests.get(url, json=payload, headers=headers)
+    except Exception as e:
+        raise Exception("Error: {}".format(str(e)))
+
+    if result.ok != True:
+        raise Exception("Code {}".format(result.status_code))
+
+    return result.json()
+
+def get_software_versions(cfg):
+    cfg.log.log(os.path.basename(__file__), 3, "Fetching software versions.")
+    try:
+        result = send_api_query(cfg.config["software_versions"]["url"])
+    except Exception as e:
+        cfg.log.log(os.path.basename(__file__), 1, "Could not execute query: " + str(e))
+        sys.exit(1)
+
+    return result
+
+def get_github_commits(cfg,component):
+    if hasattr(cfg, 'cache_path') and cfg.cache_path:
+        cache_file = '{}/commits_{}.json'.format(cfg.cache_path, component)
+        rs = read_cache_file(cache_file, cfg.config["caches"]["ttl"]["versions"], cfg.log)
+        if rs:
+            return json.loads(rs)
+
+    cfg.log.log(os.path.basename(__file__), 3, "Executing version load for {}.".format(component))
+    try:
+        data = send_api_query(cfg.config["software_versions"]["git_repositories"][component])
+    except Exception as e:
+        cfg.log.log(os.path.basename(__file__), 1, "Could not execute query: " + str(e))
+        sys.exit(1)
+
+    result = []
+    for element in data:
+        result.append(element['sha'])
+
+    if hasattr(cfg, 'cache_path') and cfg.cache_path:
+        write_cache_file(cache_file, json.dumps(result), cfg.log)
+
+    return result

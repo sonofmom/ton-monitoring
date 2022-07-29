@@ -9,7 +9,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Classes.AppConfig as AppConfig
 import Classes.LiteClient as LiteClient
-import Classes.TonNetwork as TonNetwork
 
 def run():
     description = 'Sends `last` command to LiteServer and returns result.'
@@ -18,10 +17,9 @@ def run():
     ar.set_standard_args(parser, type="ls")
     cfg = AppConfig.AppConfig(parser.parse_args())
     lc = LiteClient.LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
-    tn = TonNetwork.TonNetwork(lc, cfg.log)
 
     start_time = datetime.datetime.now()
-    result  = tn.get_last()
+    result  = lc.last()
     runtime = (datetime.datetime.now() - start_time)
     if not result:
         cfg.log.log(os.path.basename(__file__), 1, 'Could not retrieve information.')

@@ -4,11 +4,11 @@
 import sys
 import os
 import argparse
+import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.tools.general as gt
 import Libraries.arguments as ar
 from Classes.Logger import Logger
-import json
 
 def run():
     description = 'Parses validators load JSON and returns result.'
