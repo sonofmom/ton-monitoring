@@ -21,7 +21,7 @@ class TonHttpApi:
 
         return result
 
-    def run_get_method(self, method, params):
+    def jsonrpc(self, method, params={}):
         payload = {
             "method": method,
             "params": params,

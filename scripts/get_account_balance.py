@@ -23,7 +23,7 @@ def run():
     cfg.log.log(os.path.basename(__file__), 3, "Executing getAddressBalance query for address '{}'.".format(cfg.args.address[0]))
     params = {"address": cfg.args.address[0]}
     try:
-        result = tc.run_get_method("getAddressBalance", params)
+        result = tc.jsonrpc("getAddressBalance", params)
     except Exception as e:
         cfg.log.log(os.path.basename(__file__), 1, str(e))
         sys.exit(1)

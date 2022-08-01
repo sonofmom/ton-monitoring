@@ -24,7 +24,7 @@ def run():
                         help='One of: state, nominators_count, nominators_balance, validator_balance, total_balance')
     parser.add_argument('addresses', nargs='+', help='One or more pool addresses - REQUIRED')
     cfg = AppConfig.AppConfig(parser.parse_args())
-    tc = TonHttpApi.TonHttpApi(cfg.config["toncenter"],cfg.log.log)
+    tc = TonHttpApi.TonHttpApi(cfg.config["toncenter"], cfg.log.log)
 
     start_time = datetime.datetime.now()
     data = {}
@@ -38,7 +38,7 @@ def run():
         }
         cfg.log.log(os.path.basename(__file__), 3, "Loading {}".format(params["method"]))
         try:
-            data[address]["list_nominators"] = tc.run_get_method("runGetMethod", params)
+            data[address]["list_nominators"] = tc.jsonrpc("runGetMethod", params)
         except Exception as e:
             cfg.log.log(os.path.basename(__file__), 1, str(e))
             sys.exit(1)
@@ -50,7 +50,7 @@ def run():
         }
         cfg.log.log(os.path.basename(__file__), 3, "Loading {}".format(params["method"]))
         try:
-            data[address]["get_pool_data"] = tc.run_get_method("runGetMethod", params)
+            data[address]["get_pool_data"] = tc.jsonrpc("runGetMethod", params)
         except Exception as e:
             cfg.log.log(os.path.basename(__file__), 1, str(e))
             sys.exit(1)

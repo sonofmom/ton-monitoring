@@ -15,11 +15,11 @@ def run():
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
     ar.set_standard_args_file(parser)
-    parser.add_argument('-c', '--check',
+    parser.add_argument('-e', '--exists',
                         required=False,
                         type=int,
                         default=0,
-                        dest='check',
+                        dest='exists',
                         action='store',
                         help='Check existence of requested path, return 1 if exists, 0 if not')
 
@@ -52,7 +52,7 @@ def run():
     adnl_data = next((chunk for chunk in data if chunk["adnl_addr"] == args.adnl[0]), None)
     if not adnl_data:
         log.log(os.path.basename(__file__), 2, "Data for ADNL '{}' not found".format(args.adnl[0]))
-        if args.check:
+        if args.exists:
             print(0)
             sys.exit(0)
         else:
@@ -63,12 +63,12 @@ def run():
 
     if result is None:
         log.log(os.path.basename(__file__), 1, "Path '{}' was not found in data".format(args.path[0]))
-        if (args.check):
+        if (args.exists):
             print(0)
             sys.exit(0)
         else:
             sys.exit(1)
-    elif args.check:
+    elif args.exists:
         print(1)
     elif isinstance(result, bool):
         print(int(result))
