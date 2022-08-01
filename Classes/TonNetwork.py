@@ -1,4 +1,5 @@
 import re
+import hashlib
 
 class TonNetwork:
     def __init__(self, lite_client, log):
@@ -24,14 +25,14 @@ class TonNetwork:
         self.log.log(self.__class__.__name__, 3, "Checking for presence of block '{}'".format(blockinfo))
 
         self.log.log(self.__class__.__name__, 3, "Validate LS connectivity.")
-        if not self.get_last():
+        if not self.lc.last():
             self.log.log(self.__class__.__name__, 1, "Could not validate LS")
             return None
 
         try:
             stdout = self.lc.exec('gethead {}'.format(blockinfo), True)
         except Exception as e:
-            self.log.log(self.__class__.__name__, 1, "Could not execute `gethead`: " + str(e))
+            self.log.log(self.__class__.__name__, 1, "Could not execute `gethead`: {}".format(str(e)))
             return None
 
         match = re.search(r'^(block header.+).+', stdout, re.MULTILINE)
@@ -42,14 +43,35 @@ class TonNetwork:
             self.log.log(self.__class__.__name__, 3, "Unknown block!")
             return 0
 
-    def get_wallet_value(self, wallet):
-        [success, storage]  = self.lc.exec("getaccount %s" % wallet)
-        if storage is None:
+    def get_account_balance(self, account):
+        rs = self.lc.exec("getaccount {}".format(account))
+        if rs is None:
             return 0
-        balance = self.lc.get_var(storage, "balance")
-        grams = self.lc.get_var(balance, "grams")
-        value = self.lc.get_var(grams, "value")
-        return self.ng2g(value)
+        return self.ng2g(self.lc.parse_output(rs,['balance','grams','value']))
+
+    def get_account_type(self, account):
+        types = {
+            'd670136510daff4fee1889b8872c4c1e89872ffa1fe58a23a5f5d99cef8edf32': 'wallet v1 r1',
+            '2705a31a7ac162295c8aed0761cc6e031ab65521dd7b4a14631099e02de99e18': 'wallet v1 r2',
+            'c3b9bb03936742cfbb9dcdd3a5e1f3204837f613ef141f273952aa41235d289e': 'wallet v1 r3',
+            'fa44386e2c445f1edf64702e893e78c3f9a687a5a01397ad9e3994ee3d0efdbf': 'wallet v2 r1',
+            'd5e63eff6fa268d612c0cf5b343c6674b7312c58dfd9ffa1b536f2014a919164': 'wallet v2 r2',
+            '4505c335cb60f221e58448c71595bb6d7c980c01a798b392ebb53d86cb6061dc': 'wallet v3 r1',
+            '8a6d73bdd8704894f17d8c76ce6139034b8a51b1802907ca36283417798a219b': 'wallet v3 r2',
+            '7ae380664c513769eaa5c94f9cd5767356e3f7676163baab66a4b73d5edab0e5': 'wallet v4',
+            'fc8e48ed7f9654ba76757f52cc6031b2214c02fab9e429ffa0340f5575f9f29c': 'wallet hv4',
+            '57db8219f434d4aa2f4925fb8225c41414fc1957877c4034fd0a727022c40c52': 'nominator pool v1'
+        }
+
+        rs = self.lc.exec("getaccount {}".format(account))
+        if rs is None:
+            return 0
+        data = self.lc.parse_raw_data(self.lc.parse_output(rs,['storage','state','code','value']))
+        hash = hashlib.sha256(bytes.fromhex(next(s for s in data if s))).hexdigest()
+        if hash in types:
+            return types[hash]
+        else:
+            return None
 
     def get_validators_load(self, t_start, t_end):
         cmd = 'checkloadall {} {}'.format(t_start, t_end)

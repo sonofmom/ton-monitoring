@@ -2,6 +2,7 @@ import subprocess
 import time
 import re
 
+
 class LiteClient:
     def __init__(self, args, config, log):
         self.log = log
@@ -20,7 +21,7 @@ class LiteClient:
         self.log.log(self.__class__.__name__, 3, 'liteServer key    : {}'.format(str(self.ls_key)))
         self.log.log(self.__class__.__name__, 3, 'liteServer config : {}'.format(str(self.ls_config)))
 
-    def exec(self, cmd, nothrow = False, wait = None):
+    def exec(self, cmd, nothrow=False, wait=None):
         self.log.log(self.__class__.__name__, 3, 'Executing command : {}'.format(cmd))
         if self.ls_addr:
             args = [self.config["bin"],
@@ -60,20 +61,19 @@ class LiteClient:
                 else:
                     continue
 
-            except subprocess.TimeoutExpired as e:
+            except subprocess.TimeoutExpired:
                 self.log.log(self.__class__.__name__, 3, 'liteServer query {}sec timeout expired'.format(self.config["timeout"]))
                 continue
 
         if success:
-            self.log.log(self.__class__.__name__, 3, 'Command succsesful!')
+            self.log.log(self.__class__.__name__, 3, 'Command successful!')
             return output
         else:
             msg = "LiteClient failure after {} retries".format(loop)
             self.log.log(self.__class__.__name__, 1, msg)
             raise Exception(msg)
 
-
-    # Based on code by https://github.com/igroman787/mytonctrl
+    # Based on https://github.com/ton-blockchain/mytonctrl
     #
     def parse_output(self, text, path):
         result = None
@@ -116,6 +116,10 @@ class LiteClient:
 
         return result
 
+    def parse_raw_data(self, data):
+        data = data.replace("\n", '')
+        return re.findall('x\{(.*?)\}', data)
+
     def last(self):
         self.log.log(self.__class__.__name__, 3, 'Retrieving last block info')
 
@@ -126,7 +130,7 @@ class LiteClient:
             return None
 
         match = re.match(r'.+server is (.*) created at \d* \((\d+) seconds ago\)', output, re.M | re.I)
-        if (match):
+        if match:
             self.log.log(self.__class__.__name__, 3, 'Last block {} seconds ago'.format(match.group(2)))
             return {
                 'ago': match.group(2),
@@ -144,6 +148,8 @@ class LiteClient:
                 "roothash": match.group(4),
                 "filehash": match.group(5)
             }
+        else:
+            return None
 
     # end define
 # end class
