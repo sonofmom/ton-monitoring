@@ -7,7 +7,7 @@
   },
   "caches": {
     "path": "/tmp",
-    "prefix": "ton-validator-zabbix",
+    "prefix": "ton-monitoring",
     "ttl": {
       "election_cycles": 60,
       "elections": 60,
