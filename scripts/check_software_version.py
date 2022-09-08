@@ -14,6 +14,8 @@ def run():
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
     ar.set_standard_args(parser)
+    ar.set_config_args(parser)
+
     parser.add_argument('component', nargs=1, help='Component - REQUIRED')
     parser.add_argument('current_version', nargs=1, help='Current version - REQUIRED')
     cfg = AppConfig.AppConfig(parser.parse_args())

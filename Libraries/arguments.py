@@ -1,29 +1,28 @@
-def set_standard_args(parser, type = None):
+def set_config_args(parser):
     parser.add_argument('-c', '--config',
                         required=True,
                         dest='config_file',
                         action='store',
                         help='Script configuration file - REQUIRED')
 
+def set_standard_args(parser):
     parser.add_argument('-v', '--verbosity',
                         required=False,
                         type=int,
                         default=0,
                         dest='verbosity',
                         action='store',
-                        help='Verbosity 0 - 3')
+                        help='Verbosity 0 - 3 - OPTIONAL, default: 0')
 
+def set_perf_args(parser):
     parser.add_argument('-T', '--time',
                         required=False,
                         dest='get_time',
                         const=1,
                         action='store_const',
-                        help='Output time required to perform command')
+                        help='Output time required to perform command - OPTIONAL')
 
-    if type == "ls":
-        set_standard_args_ls(parser)
-
-def set_standard_args_ls(parser):
+def set_liteserver_args(parser):
     parser.add_argument('-a', '--addr',
                         required=True,
                         dest='ls_addr',
@@ -36,7 +35,8 @@ def set_standard_args_ls(parser):
                         action='store',
                         help='LiteServer base64 key as encoded in network config - REQUIRED')
 
-def set_standard_args_file(parser):
+
+def set_in_file_args(parser):
     parser.add_argument('-f', '--file',
                         required=True,
                         dest='file',
@@ -51,10 +51,52 @@ def set_standard_args_file(parser):
                         action='store',
                         help='Maximum age of data file in seconds - OPTIONAL')
 
-    parser.add_argument('-v', '--verbosity',
+def set_blockchain_base_args(parser):
+    parser.add_argument('-w', '--workchain',
                         required=False,
                         type=int,
-                        default=0,
-                        dest='verbosity',
+                        default=-1,
+                        dest='workchain',
                         action='store',
-                        help='Verbosity 0 - 3')
+                        help='Workchain - OPTIONAL, default: -1')
+
+    parser.add_argument('-s', '--shard',
+                        required=False,
+                        type=int,
+                        default=-9223372036854775808,
+                        dest='shard',
+                        action='store',
+                        help='Shard - OPTIONAL, default: -9223372036854775808')
+
+def set_period_args(parser, default_value=300):
+    parser.add_argument('-p', '--period',
+                        required=False,
+                        type=int,
+                        default=default_value,
+                        dest='period',
+                        action='store',
+                        help='Load data for last X seconds - OPTIONAL, default: {}'.format(default_value))
+
+def set_transactions_filter_args(parser):
+    parser.add_argument('-F', '--filter',
+                        required=False,
+                        type=str,
+                        default=None,
+                        dest='filters',
+                        action='store',
+                        help='Filters, comma delimited list of filter rules [skip|include]_[elector|failed|<transaction_type>] - OPTIONAL')
+
+def parse_range_param(param):
+    result = []
+    for element in param.split(','):
+        if ':' not in element:
+            element = int(element)
+            if element not in result:
+                result.append(int(element))
+        else:
+            parts = element.split(':')
+            for i in range(int(parts[0]),int(parts[1])+1):
+                if i not in result:
+                    result.append(i)
+
+    return result

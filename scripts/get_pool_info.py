@@ -15,16 +15,20 @@ def run():
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
     ar.set_standard_args(parser)
-    parser.add_argument('-i', '--info',
+    ar.set_config_args(parser)
+    ar.set_perf_args(parser)
+
+    parser.add_argument('-M', '--metric',
                         required=True,
                         type=str,
-                        default=0,
-                        dest='info',
+                        default=None,
+                        dest='metric',
                         action='store',
                         help='One of: state, nominators_count, nominators_balance, validator_balance, total_balance')
+
     parser.add_argument('addresses', nargs='+', help='One or more pool addresses - REQUIRED')
     cfg = AppConfig.AppConfig(parser.parse_args())
-    tc = TonHttpApi.TonHttpApi(cfg.config["toncenter"], cfg.log.log)
+    tc = TonHttpApi.TonHttpApi(cfg.config["http-api"], cfg.log.log)
 
     start_time = datetime.datetime.now()
     data = {}
@@ -56,26 +60,26 @@ def run():
             sys.exit(1)
 
     result = 0
-    if cfg.args.info == 'state':
+    if cfg.args.metric == 'state':
         cfg.log.log(os.path.basename(__file__), 3, "Returning pool state")
         result = get_pool_state(data[cfg.args.addresses[0]]["get_pool_data"])
 
-    elif cfg.args.info == 'nominators_count':
+    elif cfg.args.metric == 'nominators_count':
         cfg.log.log(os.path.basename(__file__), 3, "Returning nominators count")
         for address in data:
             result += len(data[address]["list_nominators"]["result"]["stack"][0][1]["elements"])
 
-    elif cfg.args.info == 'nominators_balance':
+    elif cfg.args.metric == 'nominators_balance':
         cfg.log.log(os.path.basename(__file__), 3, "Returning nominators balance")
         for address in data:
             result += gt.nt2t(get_pool_nominators_balance(data[address]["list_nominators"]))
 
-    elif cfg.args.info == 'validator_balance':
+    elif cfg.args.metric == 'validator_balance':
         cfg.log.log(os.path.basename(__file__), 3, "Returning validator balance")
         for address in data:
             result += gt.nt2t(get_pool_validator_balance(data[address]["get_pool_data"]))
 
-    elif cfg.args.info == 'total_balance':
+    elif cfg.args.metric == 'total_balance':
         cfg.log.log(os.path.basename(__file__), 3, "Returning total balance")
         for address in data:
             result += gt.nt2t(get_pool_nominators_balance(data[address]["list_nominators"]))

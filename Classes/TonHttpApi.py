@@ -1,18 +1,18 @@
 import Libraries.tools.general as gt
 
 class TonHttpApi:
-    def __init__(self, tc_config, log=None):
-        self.tc_config = tc_config
+    def __init__(self, config, log=None):
+        self.config = config
         self.log = log
 
     def query(self, payload):
         headers = None
-        if "api_token" in self.tc_config and self.tc_config["api_token"]:
-            headers = {"X-API-Key": self.tc_config["api_token"]}
+        if "api_token" in self.config and self.config["api_token"]:
+            headers = {"X-API-Key": self.config["api_token"]}
 
         try:
             result = gt.send_api_query(
-                self.tc_config["url"],
+                self.config["url"],
                 payload=payload,
                 headers=headers,
                 method='post')

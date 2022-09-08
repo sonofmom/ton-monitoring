@@ -19,6 +19,7 @@ def init():
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
     ar.set_standard_args(parser)
+    ar.set_config_args(parser)
 
     parser.add_argument('-p', '--period',
                         required=True,
@@ -66,19 +67,6 @@ def run(cfg):
     data["statistics"] = {
         "signal_crashes": len(gt.ton_log_tail_n_seek(cfg.config["files"]["main_log"], cfg.args.period, "Signal"))
     }
-
-    cfg.log.log(os.path.basename(__file__), 3, "Collecting number of SLOW ops from thread logs")
-    data["statistics"]["slow"] = {}
-    for file in glob.glob(cfg.config["files"]["threads_log"]):
-        cfg.log.log(os.path.basename(__file__), 3, "Processing file '{}'".format(file))
-        slow_count(file, cfg.args.period, data["statistics"]["slow"])
-
-    cfg.log.log(os.path.basename(__file__), 3, "Post processing SLOW counts")
-    for element in data["statistics"]["slow"]:
-        data["statistics"]["slow"][element]["avg"] = sum(data["statistics"]["slow"][element]["raw"]) / len(data["statistics"]["slow"][element]["raw"])
-        data["statistics"]["slow"][element]["min"] = min(data["statistics"]["slow"][element]["raw"])
-        data["statistics"]["slow"][element]["max"] = max(data["statistics"]["slow"][element]["raw"])
-        data["statistics"]["slow"][element]["count"] = len(data["statistics"]["slow"][element]["raw"])
 
     if cfg.args.output:
         cfg.log.log(os.path.basename(__file__), 3, "Writing output to '{}'".format(cfg.args.output))

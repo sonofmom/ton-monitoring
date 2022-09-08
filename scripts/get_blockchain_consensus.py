@@ -18,6 +18,9 @@ def run():
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
     ar.set_standard_args(parser)
+    ar.set_config_args(parser)
+    ar.set_perf_args(parser)
+
     parser.add_argument('-m', '--metric',
                         required=False,
                         type=str,
@@ -25,8 +28,9 @@ def run():
                         dest='metric',
                         action='store',
                         help='Metric type, one of block|time|age|rate. Default value: block')
+
     cfg = AppConfig.AppConfig(parser.parse_args())
-    tc = TonHttpApi.TonHttpApi(cfg.config["toncenter"], cfg.log.log)
+    tc = TonHttpApi.TonHttpApi(cfg.config["http-api"], cfg.log.log)
 
     start_time = datetime.datetime.now()
     cfg.log.log(os.path.basename(__file__), 3, "Executing getConsensusBlock.")

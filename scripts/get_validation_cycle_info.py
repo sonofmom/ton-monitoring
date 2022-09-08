@@ -15,6 +15,8 @@ def run():
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
     ar.set_standard_args(parser)
+    ar.set_config_args(parser)
+
     parser.add_argument('-e', '--exists',
                         required=False,
                         type=int,

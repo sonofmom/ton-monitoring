@@ -15,6 +15,8 @@ def run():
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
     ar.set_standard_args(parser)
+    ar.set_config_args(parser)
+
     parser.add_argument('adnl', nargs=1, help='ADNL address of node - REQUIRED')
     parser.add_argument('offset', nargs=1, help='Offset in seconds - REQUIRED')
 

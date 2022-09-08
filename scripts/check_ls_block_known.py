@@ -15,7 +15,11 @@ def run():
     description = 'Checks if lite server finds the block, returns 1 if known and 0 if not.'
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
-    ar.set_standard_args(parser, type="ls")
+    ar.set_standard_args(parser)
+    ar.set_config_args(parser)
+    ar.set_perf_args(parser)
+    ar.set_liteserver_args(parser)
+
     parser.add_argument('blockinfo', nargs=1, help='Block information - REQUIRED')
 
     cfg = AppConfig.AppConfig(parser.parse_args())

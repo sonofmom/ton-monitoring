@@ -10,18 +10,19 @@ import Classes.AppConfig as AppConfig
 import Classes.TonElections as TonElections
 
 def run():
-    description = "Returns number of consequtive cycles node did NOT participate in.\n" \
-                  "Considers last 5 cycles"
+    description = "Returns number of consecutive cycles node did NOT participate in."
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
     ar.set_standard_args(parser)
+    ar.set_config_args(parser)
+
     parser.add_argument('-n', '--number',
                         required=False,
                         type=int,
                         default=5,
                         dest='number',
                         action='store',
-                        help='Number of cycles to check')
+                        help='Number of past cycles to check')
 
     parser.add_argument('adnl', nargs=1, help='ADNL address of node - REQUIRED')
 

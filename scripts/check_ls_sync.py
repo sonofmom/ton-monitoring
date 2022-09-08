@@ -14,7 +14,11 @@ def run():
     description = 'Sends `last` command to LiteServer and returns result.'
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
-    ar.set_standard_args(parser, type="ls")
+    ar.set_standard_args(parser)
+    ar.set_config_args(parser)
+    ar.set_perf_args(parser)
+    ar.set_liteserver_args(parser)
+
     cfg = AppConfig.AppConfig(parser.parse_args())
     lc = LiteClient.LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
 

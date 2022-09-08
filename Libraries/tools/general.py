@@ -153,7 +153,7 @@ def send_api_query(url, payload=None, method=None, headers=None):
         if method == 'post':
             result = requests.post(url, json=payload, headers=headers)
         else:
-            result = requests.get(url, json=payload, headers=headers)
+            result = requests.get(url, params=payload, headers=headers)
     except Exception as e:
         raise Exception("Error: {}".format(str(e)))
 

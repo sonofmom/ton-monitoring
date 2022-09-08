@@ -33,7 +33,7 @@ class TonElections:
 
         return result
 
-    def get_validation_cycles(self,count):
+    def get_validation_cycles(self, count):
         if hasattr(self.cfg, 'cache_path') and self.cfg.cache_path:
             self.cfg.log.log(os.path.basename(__file__), 3, "Cache path detected.")
             cache_file = '{}/validation_cycles_{}.json'.format(self.cfg.cache_path,count)
@@ -65,6 +65,8 @@ class TonElections:
         for element in rs.json():
             if element["cycle_info"]["utime_since"] <= now and element["cycle_info"]["utime_until"] >= now:
                 element['current'] = True
+            else:
+                element['current'] = False
 
             result.append(element)
 
@@ -73,5 +75,9 @@ class TonElections:
             rs = gt.write_cache_file(cache_file, json.dumps(result), self.cfg.log)
 
         return result
+
+    def get_current_cycle(self):
+        cycles = self.get_validation_cycles(2)
+        return next((cycle for cycle in cycles if cycle["current"] is True), None)
 
 # end class

@@ -16,7 +16,11 @@ def run():
     description = 'Runs a method on specified address and returns result.'
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
-    ar.set_standard_args(parser, type="ls")
+    ar.set_standard_args(parser)
+    ar.set_config_args(parser)
+    ar.set_perf_args(parser)
+    ar.set_liteserver_args(parser)
+
     parser.add_argument('address', nargs=1, help='Blockchain address - REQUIRED')
     parser.add_argument('method', nargs=1, help='Method to run - REQUIRED')
 
