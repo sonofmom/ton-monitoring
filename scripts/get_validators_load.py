@@ -43,7 +43,10 @@ def run():
         sys.exit(1)
 
     if cfg.args.metric in adnl_data:
-        print(adnl_data[cfg.args.metric])
+        if isinstance(adnl_data[cfg.args.metric], bool):
+            print(int(adnl_data[cfg.args.metric]))
+        else:
+            print(adnl_data[cfg.args.metric])
     else:
         cfg.log.log(os.path.basename(__file__), 2, "Metric '{}' not found".format(cfg.args.metric))
         sys.exit(1)
