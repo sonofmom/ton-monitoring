@@ -21,11 +21,11 @@ def run():
     ar.set_period_args(parser)
     ar.set_blockchain_base_args(parser)
 
-    parser.add_argument('-i', '--info',
+    parser.add_argument('-M', '--metric',
                         required=True,
                         type=str,
                         default=0,
-                        dest='info',
+                        dest='metric',
                         action='store',
                         help='One of: latency_blocks, missing_blocks')
 
@@ -48,7 +48,7 @@ def run():
         "workchain": cfg.args.workchain,
         "shard": cfg.args.shard,
     }
-    if cfg.args.info == 'missing_blocks':
+    if cfg.args.metric == 'missing_blocks':
         cfg.log.log(os.path.basename(__file__), 3, "Fetching indexed blocks from workchain {} for {}sec".format(cfg.args.workchain, cfg.args.period))
         params["limit"] = 999
         params["sort"] = "asc"
@@ -72,9 +72,9 @@ def run():
     runtime = (datetime.datetime.now() - start_time)
     if cfg.args.get_time:
         print(runtime.microseconds / 1000)
-    elif cfg.args.info == 'latency_blocks':
+    elif cfg.args.metric == 'latency_blocks':
         print(max(0, int(consensus["consensus_block"]) - blocks[0]["seqno"]))
-    elif cfg.args.info == 'missing_blocks':
+    elif cfg.args.metric == 'missing_blocks':
         last = 0
         missing = 0
         for element in blocks:
