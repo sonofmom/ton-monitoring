@@ -32,7 +32,7 @@ def run():
     cfg = AppConfig.AppConfig(parser.parse_args())
     lc = LiteClient.LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
     tn = TonNetwork.TonNetwork(lc, cfg.log)
-    te = TonElections.TonElections(cfg, cfg.log)
+    te = TonElections.TonElections(cfg.config["elections"], cfg.log, app_config=cfg)
 
     vdata = te.get_current_cycle()
     if not vdata:

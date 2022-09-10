@@ -8,6 +8,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
 import Classes.AppConfig as AppConfig
+import Classes.TonElections as TonElections
+
 
 def run():
     description = "Checks for passed complaints for a node within given time offset.\n" \
@@ -21,17 +23,13 @@ def run():
     parser.add_argument('offset', nargs=1, help='Offset in seconds - REQUIRED')
 
     cfg = AppConfig.AppConfig(parser.parse_args())
+    te = TonElections.TonElections(cfg.config["elections"], cfg.log, app_config=cfg)
 
-    cfg.log.log(os.path.basename(__file__), 3, "Executing getComplaints query.")
     payload = {
         "adnl_address": cfg.args.adnl[0],
         "limit": 10
     }
-    try:
-        result = gt.send_api_query("{}/getComplaints".format(cfg.config["elections"]["url"]), payload, method='get')
-    except Exception as e:
-        cfg.log.log(os.path.basename(__file__), 1, "Query failed: {}".format(str(e)))
-        sys.exit(1)
+    result = te.query(method='getComplaints', payload=payload)
 
     count = 0
     for element in result:

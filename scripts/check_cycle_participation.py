@@ -27,7 +27,7 @@ def run():
     parser.add_argument('adnl', nargs=1, help='ADNL address of node - REQUIRED')
 
     cfg = AppConfig.AppConfig(parser.parse_args())
-    te = TonElections.TonElections(cfg, cfg.log)
+    te = TonElections.TonElections(cfg.config["elections"], cfg.log, app_config=cfg)
 
     cycles = te.get_validation_cycles(cfg.args.number)
     cycles.reverse()

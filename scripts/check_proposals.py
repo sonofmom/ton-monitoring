@@ -3,10 +3,8 @@
 import sys
 import os
 import argparse
-import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
-import Libraries.tools.general as gt
 import Classes.AppConfig as AppConfig
 import Classes.TonHttpApi as TonHttpApi
 
