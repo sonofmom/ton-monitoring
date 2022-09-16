@@ -21,6 +21,14 @@ def run():
     ar.set_period_args(parser)
     ar.set_blockchain_base_args(parser)
 
+    parser.add_argument('-o', '--output',
+                        required=False,
+                        type=str,
+                        default=None,
+                        dest='output',
+                        action='store',
+                        help='Output missing block data into file OPTIONAL')
+
     parser.add_argument('-M', '--metric',
                         required=True,
                         type=str,
@@ -76,13 +84,18 @@ def run():
         print(max(0, int(consensus["consensus_block"]) - blocks[0]["seqno"]))
     elif cfg.args.metric == 'missing_blocks':
         last = 0
-        missing = 0
+        missing = []
         for element in blocks:
             if last and element["seqno"] != last+1:
-                missing += 1
+                missing.append(element)
             last = element["seqno"]
 
-        print(missing)
+        if missing and cfg.args.output:
+            with open(cfg.args.output, 'a') as fd:
+                for element in missing:
+                    fd.write("{} {}:{}:{}\n".format(gt.get_timestamp(), element["workchain"], element["shard"], element["seqno"]))
+
+        print(len(missing))
 
 if __name__ == '__main__':
     run()
