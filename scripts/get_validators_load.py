@@ -7,7 +7,7 @@ import argparse
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
-import Classes.AppConfig as AppConfig
+from Classes.AppConfig import AppConfig
 import json
 
 def run():
@@ -27,7 +27,7 @@ def run():
 
     parser.add_argument('adnl', nargs=1, help='ADNL of node - REQUIRED')
 
-    cfg = AppConfig.AppConfig(parser.parse_args())
+    cfg = AppConfig(parser.parse_args())
 
     data = gt.read_cache_file(cfg.args.file, cfg.args.maxage, cfg.log)
     if data:

@@ -6,8 +6,8 @@ import argparse
 import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
-import Classes.AppConfig as AppConfig
-import Classes.TonIndexer as TonIndexer
+from Classes.AppConfig import AppConfig
+from Classes.TonIndexer import TonIndexer
 
 def run():
     description = 'Performs analysis of transactions count using ton indexer service.'
@@ -28,8 +28,8 @@ def run():
                         action='store',
                         help='Information to output [rate|count] - REQUIRED')
 
-    cfg = AppConfig.AppConfig(parser.parse_args())
-    ti = TonIndexer.TonIndexer(cfg.config["indexer"], cfg.log)
+    cfg = AppConfig(parser.parse_args())
+    ti = TonIndexer(cfg.config["indexer"], cfg.log)
 
     start_time = datetime.datetime.now()
 

@@ -11,7 +11,7 @@ import subprocess
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.tools.general as gt
 import Libraries.arguments as ar
-import Classes.AppConfig as AppConfig
+from Classes.AppConfig import AppConfig
 
 
 def init():
@@ -34,7 +34,7 @@ def init():
                         action='store',
                         help='File to write result - OPTIONAL')
 
-    return AppConfig.AppConfig(parser.parse_args())
+    return AppConfig(parser.parse_args())
 
 def run(cfg):
     data = {

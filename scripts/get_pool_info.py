@@ -7,8 +7,8 @@ import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
-import Classes.AppConfig as AppConfig
-import Classes.TonHttpApi as TonHttpApi
+from Classes.AppConfig import AppConfig
+from Classes.TonHttpApi import TonHttpApi
 
 def run():
     description = 'Fetches and returns pool information.'
@@ -27,8 +27,8 @@ def run():
                         help='One of: state, nominators_count, nominators_balance, validator_balance, total_balance')
 
     parser.add_argument('addresses', nargs='+', help='One or more pool addresses - REQUIRED')
-    cfg = AppConfig.AppConfig(parser.parse_args())
-    tc = TonHttpApi.TonHttpApi(cfg.config["http-api"], cfg.log.log)
+    cfg = AppConfig(parser.parse_args())
+    tc = TonHttpApi(cfg.config["http-api"], cfg.log.log)
 
     start_time = datetime.datetime.now()
     data = {}

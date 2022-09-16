@@ -5,8 +5,8 @@ import os
 import argparse
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
-import Classes.AppConfig as AppConfig
-import Classes.TonHttpApi as TonHttpApi
+from Classes.AppConfig import AppConfig
+from Classes.TonHttpApi import TonHttpApi
 
 def run():
     description = 'Fetches and returns seqno of the account.'
@@ -16,8 +16,8 @@ def run():
     ar.set_config_args(parser)
 
     parser.add_argument('address', nargs=1, help='Account address - REQUIRED')
-    cfg = AppConfig.AppConfig(parser.parse_args())
-    tc = TonHttpApi.TonHttpApi(cfg.config["http-api"],cfg.log.log)
+    cfg = AppConfig(parser.parse_args())
+    tc = TonHttpApi(cfg.config["http-api"],cfg.log.log)
 
     cfg.log.log(os.path.basename(__file__), 3, "Executing {} method on {}".format("seqno", cfg.config["params"]["config_address"]))
     params = {

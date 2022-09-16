@@ -7,8 +7,8 @@ import argparse
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
-import Classes.AppConfig as AppConfig
-import Classes.TonElections as TonElections
+from Classes.AppConfig import AppConfig
+from Classes.TonElections import TonElections
 
 def run():
     description = 'Returns current validation cycle information for an address.'
@@ -27,8 +27,8 @@ def run():
 
     parser.add_argument('adnl', nargs=1, help='ADNL to retrieve - REQUIRED')
     parser.add_argument('path', nargs=1, help='Data path to retrieve - REQUIRED')
-    cfg = AppConfig.AppConfig(parser.parse_args())
-    te = TonElections.TonElections(cfg,cfg.log)
+    cfg = AppConfig(parser.parse_args())
+    te = TonElections(cfg.config["elections"], cfg.log, app_config=cfg)
     cycle = te.get_current_cycle()
 
     if not cycle:

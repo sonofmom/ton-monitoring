@@ -7,8 +7,8 @@ import argparse
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
-import Classes.AppConfig as AppConfig
-import Classes.TonElections as TonElections
+from Classes.AppConfig import AppConfig
+from Classes.TonElections import TonElections
 
 
 def run():
@@ -22,8 +22,8 @@ def run():
     parser.add_argument('adnl', nargs=1, help='ADNL address of node - REQUIRED')
     parser.add_argument('offset', nargs=1, help='Offset in seconds - REQUIRED')
 
-    cfg = AppConfig.AppConfig(parser.parse_args())
-    te = TonElections.TonElections(cfg.config["elections"], cfg.log, app_config=cfg)
+    cfg = AppConfig(parser.parse_args())
+    te = TonElections(cfg.config["elections"], cfg.log, app_config=cfg)
 
     payload = {
         "adnl_address": cfg.args.adnl[0],

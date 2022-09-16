@@ -10,8 +10,8 @@ import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
-import Classes.AppConfig as AppConfig
-import Classes.TonHttpApi as TonHttpApi
+from Classes.AppConfig import AppConfig
+from Classes.TonHttpApi import TonHttpApi
 
 def run():
     description = 'Fetches and returns latest consensus block using toncenter.'
@@ -29,8 +29,8 @@ def run():
                         action='store',
                         help='Metric type, one of block|time|age|rate. Default value: block')
 
-    cfg = AppConfig.AppConfig(parser.parse_args())
-    tc = TonHttpApi.TonHttpApi(cfg.config["http-api"], cfg.log.log)
+    cfg = AppConfig(parser.parse_args())
+    tc = TonHttpApi(cfg.config["http-api"], cfg.log.log)
 
     start_time = datetime.datetime.now()
     cfg.log.log(os.path.basename(__file__), 3, "Executing getConsensusBlock.")

@@ -7,8 +7,8 @@ import argparse
 import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
-import Classes.AppConfig as AppConfig
-import Classes.LiteClient as LiteClient
+from Classes.AppConfig import AppConfig
+from Classes.LiteClient import LiteClient
 
 def run():
     description = 'Sends `last` command to LiteServer and returns result.'
@@ -19,8 +19,8 @@ def run():
     ar.set_perf_args(parser)
     ar.set_liteserver_args(parser)
 
-    cfg = AppConfig.AppConfig(parser.parse_args())
-    lc = LiteClient.LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
+    cfg = AppConfig(parser.parse_args())
+    lc = LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
 
     start_time = datetime.datetime.now()
     result  = lc.last()

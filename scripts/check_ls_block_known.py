@@ -7,9 +7,9 @@ import argparse
 import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
-import Classes.AppConfig as AppConfig
-import Classes.LiteClient as LiteClient
-import Classes.TonNetwork as TonNetwork
+from Classes.AppConfig import AppConfig
+from Classes.LiteClient import LiteClient
+from Classes.TonNetwork import TonNetwork
 
 def run():
     description = 'Checks if lite server finds the block, returns 1 if known and 0 if not.'
@@ -22,9 +22,9 @@ def run():
 
     parser.add_argument('blockinfo', nargs=1, help='Block information - REQUIRED')
 
-    cfg = AppConfig.AppConfig(parser.parse_args())
-    lc = LiteClient.LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
-    tn = TonNetwork.TonNetwork(lc, cfg.log)
+    cfg = AppConfig(parser.parse_args())
+    lc = LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
+    tn = TonNetwork(lc, cfg.log)
 
     start_time = datetime.datetime.now()
     result  = tn.check_block_known(cfg.args.blockinfo[0])

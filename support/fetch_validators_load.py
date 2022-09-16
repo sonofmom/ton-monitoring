@@ -8,10 +8,10 @@ import json
 import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
-import Classes.AppConfig as AppConfig
-import Classes.LiteClient as LiteClient
-import Classes.TonNetwork as TonNetwork
-import Classes.TonElections as TonElections
+from Classes.AppConfig import AppConfig
+from Classes.LiteClient import LiteClient
+from Classes.TonNetwork import TonNetwork
+from Classes.TonElections import TonElections
 
 def run():
     description = 'Fetches validators load statistics from blockchain, maps it to ADNL and returns JSON'
@@ -29,10 +29,10 @@ def run():
                         help='Write output to indicated file instead of stdout')
     parser.add_argument('period', nargs=1, help='Max period to fetch, in seconds - REQUIRED')
 
-    cfg = AppConfig.AppConfig(parser.parse_args())
-    lc = LiteClient.LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
-    tn = TonNetwork.TonNetwork(lc, cfg.log)
-    te = TonElections.TonElections(cfg.config["elections"], cfg.log, app_config=cfg)
+    cfg = AppConfig(parser.parse_args())
+    lc = LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
+    tn = TonNetwork(lc, cfg.log)
+    te = TonElections(cfg.config["elections"], cfg.log, app_config=cfg)
 
     vdata = te.get_current_cycle()
     if not vdata:

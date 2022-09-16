@@ -11,6 +11,7 @@ class AppConfig:
         self.config = None
         self.ls_config = None
         self.cache_path = None
+        self.tmp = {}
 
         if hasattr(self.args, 'config_file'):
             fn = self.args.config_file

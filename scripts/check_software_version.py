@@ -7,7 +7,7 @@ import argparse
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
-import Classes.AppConfig as AppConfig
+from Classes.AppConfig import AppConfig
 
 def run():
     description = "Checks software version of given component. Returns 0 if OK, 1 if outdated, 2 if unknown."
@@ -18,7 +18,7 @@ def run():
 
     parser.add_argument('component', nargs=1, help='Component - REQUIRED')
     parser.add_argument('current_version', nargs=1, help='Current version - REQUIRED')
-    cfg = AppConfig.AppConfig(parser.parse_args())
+    cfg = AppConfig(parser.parse_args())
 
     if cfg.args.component[0] not in ['node']:
         cfg.log.log(os.path.basename(__file__), 3, "Unknown component {}".format(cfg.args.component[0]))
