@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 import json
 import os
 import psutil
@@ -10,6 +10,17 @@ import string
 import struct
 import sys
 import time
+import base64
+import shutil
+from pathlib import Path
+
+
+def check_path_exists(path):
+    if os.path.exists(path) and os.path.isdir(path) and os.access(path, os.R_OK):
+        return True
+    else:
+        return False
+
 
 def check_path_writable(path):
     if os.path.exists(path) and os.path.isdir(path) and os.access(path, os.W_OK):
@@ -17,11 +28,13 @@ def check_path_writable(path):
     else:
         return False
 
+
 def check_file_exists(file):
     if os.path.exists(file) and os.path.isfile(file) and os.access(file, os.R_OK):
         return True
     else:
         return False
+
 
 def check_file_writable(file):
     if os.path.exists(file) and os.path.isfile(file) and os.access(file, os.W_OK):
@@ -29,11 +42,26 @@ def check_file_writable(file):
     else:
         return False
 
+
 def get_datetime_string(timestamp=time.time()):
     return time.strftime("%d.%m.%Y %H:%M:%S %Z", time.localtime(timestamp))
 
+
+def make_dir(dir):
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+
+
 def get_timestamp():
     return round(time.time())
+
+
+def get_datetime_utc(timestamp=None):
+    if not timestamp:
+        return datetime.now(timezone.utc)
+    else:
+        return datetime.fromtimestamp(timestamp, timezone.utc)
+
 
 def get_leaf(data, path):
     result = None
@@ -52,17 +80,22 @@ def get_leaf(data, path):
 
     return result
 
+
 def dec2ip(value):
     return socket.inet_ntoa(struct.pack('>i', int(value)))
+
 
 def ip2dec(value):
     return struct.unpack('>i',socket.inet_aton(value))[0]
 
+
 def nt2t(tons):
     return int(tons)/10**9
 
+
 def console_log(message):
     print("{}: {}".format(get_datetime_string(time.time()), message))
+
 
 def read_cache_file(cache_file, ttl, log):
     if not check_file_exists(cache_file):
@@ -80,13 +113,13 @@ def read_cache_file(cache_file, ttl, log):
 
     return rs
 
+
 def write_cache_file(cache_file, content, log):
     log.log(os.path.basename(__file__), 3, "Writing cache file '{}'".format(cache_file))
-    tmp = "{}.{}".format(cache_file,''.join(random.choice(string.ascii_letters) for i in range(10)))
+    tmp = "{}.{}".format(cache_file,ran_string(10))
 
-    f = open(tmp, "w")
-    f.write(content)
-    f.close()
+    with open(tmp, "w") as fd:
+        fd.write(content)
 
     if check_file_exists(cache_file):
         os.unlink(cache_file)
@@ -132,9 +165,10 @@ def parse_log_timestamp(line):
     result = None
     match = re.match(r'(?:\n|\r\n?|.)+\[(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\.\d\d\d).+', line, re.M | re.I)
     if match:
-        result = datetime.datetime.fromisoformat("{}+00:00".format(match.group(1)))
+        result = datetime.fromisoformat("{}+00:00".format(match.group(1)))
 
     return result
+
 
 def get_process_pid(process):
         result = None
@@ -147,6 +181,7 @@ def get_process_pid(process):
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 pass
         return result
+
 
 def send_api_query(url, payload=None, method=None, headers=None):
     try:
@@ -162,6 +197,7 @@ def send_api_query(url, payload=None, method=None, headers=None):
 
     return result.json()
 
+
 def get_software_versions(cfg):
     cfg.log.log(os.path.basename(__file__), 3, "Fetching software versions.")
     try:
@@ -171,6 +207,7 @@ def get_software_versions(cfg):
         sys.exit(1)
 
     return result
+
 
 def get_github_commits(cfg,component):
     if hasattr(cfg, 'cache_path') and cfg.cache_path:
@@ -194,3 +231,38 @@ def get_github_commits(cfg,component):
         write_cache_file(cache_file, json.dumps(result), cfg.log)
 
     return result
+
+
+def b64_to_hex(b64):
+    return base64.b64decode(b64).hex()
+
+
+def ran_string(length):
+    return ''.join(random.choice(string.ascii_letters) for i in range(length))
+
+
+def archive_file(source, archive_root, subdirs=None, keep_original=False):
+    if not isinstance(source, Path):
+        file = Path(source)
+
+    if not isinstance(archive_root, Path):
+        archive_root = Path(archive_root)
+
+    if not check_path_writable(archive_root):
+        raise Exception("Archive root {} does not exist or is not writable".format(archive_root.absolute()))
+
+    if not os.path.exists(source):
+        raise Exception("Source file {} does not exist".format(source.absolute()))
+
+    if subdirs:
+        for element in subdirs:
+            archive_root = archive_root.joinpath(str(element))
+            if not os.path.exists(archive_root):
+                archive_root.mkdir()
+
+    target = archive_root.joinpath(source.name)
+
+    if keep_original:
+        shutil.copyfile(source, target)
+    else:
+        os.rename(source, target)
