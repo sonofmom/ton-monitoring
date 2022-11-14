@@ -1,0 +1,424 @@
+{
+    "zabbix_export": {
+        "version": "6.0",
+        "date": "2022-11-14T20:38:51Z",
+        "groups": [
+            {
+                "uuid": "94a7b82e51744de2990fab38cc2b157d",
+                "name": "TON"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "200b2f8d1c2a4023a2f88c98f8b62015",
+                "template": "TON Blockchain",
+                "name": "TON Blockchain",
+                "groups": [
+                    {
+                        "name": "TON"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "4eaf7ef924bf4cedafb361c26470f044",
+                        "name": "Election proposals count",
+                        "type": "EXTERNAL",
+                        "key": "check_proposals.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\"]",
+                        "delay": "1h",
+                        "trends": "730d",
+                        "units": "Proposals"
+                    },
+                    {
+                        "uuid": "9056917731f84d1cae8c893db09ecbff",
+                        "name": "Configuration account seqno",
+                        "type": "EXTERNAL",
+                        "key": "get_account_seqno.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",{$CONFIG.ACCOUNT.ADDRESS}]",
+                        "delay": "1h",
+                        "trends": "730d",
+                        "triggers": [
+                            {
+                                "uuid": "1fe364740acf43cfb545b7f49b277870",
+                                "expression": "change(/TON Blockchain/get_account_seqno.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",{$CONFIG.ACCOUNT.ADDRESS}])>0",
+                                "name": "Coinfiguration seqno has changed",
+                                "priority": "AVERAGE"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "71ce8851de004220a6f40104c6ef6572",
+                        "name": "Consensus block age",
+                        "type": "EXTERNAL",
+                        "key": "get_blockchain_consensus.py[\"--config\",\"{$CONFIG.FILE}\",\"--metric\",\"age\",\"--verbosity\",\"0\"]",
+                        "delay": "10s",
+                        "trends": "730d",
+                        "value_type": "FLOAT"
+                    },
+                    {
+                        "uuid": "2638fddf9ef741c688b28d362f5322e3",
+                        "name": "Consensus block height",
+                        "type": "EXTERNAL",
+                        "key": "get_blockchain_consensus.py[\"--config\",\"{$CONFIG.FILE}\",\"--metric\",\"block\",\"--verbosity\",\"0\"]",
+                        "delay": "10s",
+                        "trends": "730d"
+                    },
+                    {
+                        "uuid": "283b8ccb842f4e85a33de914b81376a1",
+                        "name": "Consensus block rate",
+                        "type": "EXTERNAL",
+                        "key": "get_blockchain_consensus.py[\"--config\",\"{$CONFIG.FILE}\",\"--metric\",\"rate\",\"--verbosity\",\"0\"]",
+                        "delay": "10s",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "Bps"
+                    },
+                    {
+                        "uuid": "1821577f5d93435e92ac9195c423dae0",
+                        "name": "Masterchain average fees per block",
+                        "type": "EXTERNAL",
+                        "key": "get_blocks_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--metric\",\"fee_load\",\"--info\",\"avg\",\"--period\",\"120\"]",
+                        "delay": "2m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "TON"
+                    },
+                    {
+                        "uuid": "08fc762a1f774e15b1389d0f8291da82",
+                        "name": "Masterchain average gas per block",
+                        "type": "EXTERNAL",
+                        "key": "get_blocks_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--metric\",\"gas_load\",\"--info\",\"avg\",\"--period\",\"120\"]",
+                        "delay": "2m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "gpb"
+                    },
+                    {
+                        "uuid": "c75db099bc284beb83bf5524167653f4",
+                        "name": "Masterchain average transactions per block",
+                        "type": "EXTERNAL",
+                        "key": "get_blocks_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--metric\",\"transactions_load\",\"--info\",\"avg\",\"--period\",\"120\"]",
+                        "delay": "2m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "tbp",
+                        "triggers": [
+                            {
+                                "uuid": "1216f2b3b3a4464aa0225b47493b68f1",
+                                "expression": "last(/TON Blockchain/get_blocks_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--metric\",\"transactions_load\",\"--info\",\"avg\",\"--period\",\"120\"])>{$MASTERCHAIN.TPB.THRESHOLD}",
+                                "name": "Masterchain TPB > {$MASTERCHAIN.TPB.THRESHOLD}",
+                                "priority": "AVERAGE"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "caed4347170744898b175dc80b66bc0a",
+                        "name": "Workchain average fees per block",
+                        "type": "EXTERNAL",
+                        "key": "get_blocks_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--metric\",\"fee_load\",\"--info\",\"avg\",\"--period\",\"120\"]",
+                        "delay": "2m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "TON"
+                    },
+                    {
+                        "uuid": "cdb5efe5a4044b5e95e6e63af44e3e51",
+                        "name": "Workchain average gas per block",
+                        "type": "EXTERNAL",
+                        "key": "get_blocks_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--metric\",\"gas_load\",\"--info\",\"avg\",\"--period\",\"120\"]",
+                        "delay": "2m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "gpb"
+                    },
+                    {
+                        "uuid": "6a7ee620d90f4273bb92c3a8e3889563",
+                        "name": "Workchain average transactions per block",
+                        "type": "EXTERNAL",
+                        "key": "get_blocks_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--metric\",\"transactions_load\",\"--info\",\"avg\",\"--period\",\"120\"]",
+                        "delay": "2m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "tpb"
+                    },
+                    {
+                        "uuid": "8689b3748b424b7fb95c49bdb286bff4",
+                        "name": "Masterchain transaction count",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_count_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--info\",\"count\",\"--workchain\",\"-1\",\"--period\",\"60\"]",
+                        "trends": "730d"
+                    },
+                    {
+                        "uuid": "62522cdfca784581b86e43dc26f7f5b6",
+                        "name": "Workchain transaction count",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_count_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--info\",\"count\",\"--workchain\",\"0\",\"--period\",\"60\"]",
+                        "trends": "730d"
+                    },
+                    {
+                        "uuid": "96ca4017d091404bb7dcefe42fc601cd",
+                        "name": "Masterchain transaction rate",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_count_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--info\",\"rate\",\"--workchain\",\"-1\",\"--period\",\"60\"]",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "tps"
+                    },
+                    {
+                        "uuid": "3309f4d3bc454078acfe0f17f585f17a",
+                        "name": "Workchain transaction rate",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_count_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--info\",\"rate\",\"--workchain\",\"0\",\"--period\",\"60\"]",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "tps"
+                    },
+                    {
+                        "uuid": "9ae7b6780d864f4eb8982d7ee94907d4",
+                        "name": "Masterchain transactions compute exit code >1 percentage",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_exit_code_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--codes\",\"2:9999\",\"--info\",\"percentage\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "%"
+                    },
+                    {
+                        "uuid": "24531c3969c54461b9c4315ee90a8693",
+                        "name": "Masterchain tick tock transactions compute exit code >1",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_exit_code_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--filter\",\"include_trans_tick_tock\",\"--codes\",\"2:9999\",\"--info\",\"count\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "triggers": [
+                            {
+                                "uuid": "a20361a0f97d43bd90bfceb3bdf6d371",
+                                "expression": "max(/TON Blockchain/get_transactions_exit_code_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--filter\",\"include_trans_tick_tock\",\"--codes\",\"2:9999\",\"--info\",\"count\",\"--period\",\"300\"],30m)>0",
+                                "name": "Failed tick tock transactions detected",
+                                "priority": "AVERAGE"
+                            }
+                        ]
+                    },
+                    {
+                        "uuid": "68e53f257dd24df4be1cd5565eb4a31f",
+                        "name": "Workchain transactions compute exit code >1 percentage",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_exit_code_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--codes\",\"2:9999\",\"--info\",\"percentage\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "%"
+                    },
+                    {
+                        "uuid": "d5b93a9ed9f643f9a1c71a1eda513cac",
+                        "name": "Masterchain average gas per transaction usage",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_gas_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--metric\",\"gas_usage\",\"--info\",\"avg\",\"--filter\",\"skip_trans_tick_tock,skip_compute_skipped\",\"--period\",\"60\"]",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "gpt",
+                        "description": "This metric does not take into account tick_tock transactions"
+                    },
+                    {
+                        "uuid": "f05f9dfdc81a494495084a6d4dbdf741",
+                        "name": "Workchain average gas per transaction usage",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_gas_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--metric\",\"gas_usage\",\"--info\",\"avg\",\"--filter\",\"skip_trans_tick_tock,skip_compute_skipped\",\"--period\",\"60\"]",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "gpt",
+                        "description": "This metric does not take into account tick_tock transactions"
+                    },
+                    {
+                        "uuid": "16f2dd0e935a4a218c8d9ee05bf2d476",
+                        "name": "Masterchain fees rate",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_path_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--info\",\"avg\",\"--filter\",\"skip_trans_tick_tock,skip_compute_skipped\",\"--period\",\"300\",\"--option\",\"nanoton_to_ton\",\"fee\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "Tpt",
+                        "description": "Without tick_tock"
+                    },
+                    {
+                        "uuid": "71992cb76c484733bb48a416d3e3265c",
+                        "name": "Masterchain fees 5m",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_path_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--info\",\"sum\",\"--filter\",\"skip_compute_skipped\",\"--period\",\"300\",\"--option\",\"nanoton_to_ton\",\"fee\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "TON"
+                    },
+                    {
+                        "uuid": "27cdec73407a4c5b98c35305edafbc6d",
+                        "name": "Masterchain 5m compute_vm_steps",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_path_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--info\",\"sum\",\"--filter\",\"skip_compute_skipped\",\"--period\",\"300\",\"compute_vm_steps\"]",
+                        "delay": "5m",
+                        "trends": "730d"
+                    },
+                    {
+                        "uuid": "d8f066f0c53a44f8ba55d6270d438e92",
+                        "name": "Masterchain 5m volume without elector",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_path_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--info\",\"sum\",\"--filter\",\"skip_elector_contract,skip_compute_skipped\",\"--option\",\"nanoton_to_ton\",\"--period\",\"300\",\"in_msg.value\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "TON"
+                    },
+                    {
+                        "uuid": "76a8bcc8e4254757b8afe80b42875fe1",
+                        "name": "Workchain fees rate",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_path_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--info\",\"avg\",\"--filter\",\"skip_trans_tick_tock,skip_compute_skipped\",\"--period\",\"300\",\"--option\",\"nanoton_to_ton\",\"fee\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "Tpt",
+                        "description": "Without tick_tock"
+                    },
+                    {
+                        "uuid": "b20f12957ac640b5ae90613395b778a7",
+                        "name": "Workchain fees 5m",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_path_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--info\",\"sum\",\"--filter\",\"skip_compute_skipped\",\"--period\",\"300\",\"--option\",\"nanoton_to_ton\",\"fee\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "TON"
+                    },
+                    {
+                        "uuid": "00de9643f79a45e4a6911b169a255c4f",
+                        "name": "Workchain 5m compute_vm_steps",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_path_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--info\",\"sum\",\"--filter\",\"skip_compute_skipped\",\"--period\",\"300\",\"compute_vm_steps\"]",
+                        "delay": "5m",
+                        "trends": "730d"
+                    },
+                    {
+                        "uuid": "a4a44176e3134395a6bf4f62e4a3b26a",
+                        "name": "Workchain 5m volume without elector",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_path_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--info\",\"sum\",\"--filter\",\"skip_elector_contract,skip_compute_skipped\",\"--option\",\"nanoton_to_ton\",\"--period\",\"300\",\"in_msg.value\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "TON"
+                    },
+                    {
+                        "uuid": "e972d3f6877f497dba66868d6ab50f11",
+                        "name": "Masterchain cskip_bad_state transactions rate",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_skip_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--metric\",\"cskip_bad_state\",\"--info\",\"rate\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "tpt"
+                    },
+                    {
+                        "uuid": "f2f0e8abe171429a9c62213e3d69480a",
+                        "name": "Masterchain cskip_bad_state transactions count",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_skip_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--metric\",\"cskip_bad_state\",\"--info\",\"sum\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d"
+                    },
+                    {
+                        "uuid": "e552f62312004d5586c57cff4b065f0b",
+                        "name": "Masterchain cskip_no_gas transactions rate",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_skip_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--metric\",\"cskip_no_gas\",\"--info\",\"rate\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "tpt"
+                    },
+                    {
+                        "uuid": "2a66ec10d88f424d974f7759130614d7",
+                        "name": "Masterchain cskip_no_gas transactions count",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_skip_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"-1\",\"--metric\",\"cskip_no_gas\",\"--info\",\"sum\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d"
+                    },
+                    {
+                        "uuid": "e88064c39f3d48c49dd963ec12f1d85e",
+                        "name": "Workchain cskip_bad_state transactions rate",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_skip_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--metric\",\"cskip_bad_state\",\"--info\",\"rate\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "tpt"
+                    },
+                    {
+                        "uuid": "e646c69134f44fdb888dc7e9980a2982",
+                        "name": "Workchain cskip_bad_state transactions count",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_skip_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--metric\",\"cskip_bad_state\",\"--info\",\"sum\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d"
+                    },
+                    {
+                        "uuid": "b2069e9bb7f64c0ab6bbaeeedf224253",
+                        "name": "Workchain cskip_no_gas transactions rate",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_skip_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--metric\",\"cskip_no_gas\",\"--info\",\"rate\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d",
+                        "value_type": "FLOAT",
+                        "units": "tpt"
+                    },
+                    {
+                        "uuid": "8ae90541a76a438992f9e6cb2c35658a",
+                        "name": "Workchain cskip_no_gas transactions count",
+                        "type": "EXTERNAL",
+                        "key": "get_transactions_skip_stats.py[\"--config\",\"{$CONFIG.FILE}\",\"--verbosity\",\"0\",\"--workchain\",\"0\",\"--metric\",\"cskip_no_gas\",\"--info\",\"sum\",\"--period\",\"300\"]",
+                        "delay": "5m",
+                        "trends": "730d"
+                    },
+                    {
+                        "uuid": "58fe2b1e434c49d7875a23471ed1f988",
+                        "name": "Validators average hourly efficiency",
+                        "type": "EXTERNAL",
+                        "key": "get_validators_load_stats.py[\"--file\",\"{$LOAD.FILE.HOUR}\",\"--verbosity\",\"0\",\"--metric\",\"efficiency\",\"--info\",\"avg\"]",
+                        "delay": "5m",
+                        "value_type": "FLOAT",
+                        "units": "%"
+                    },
+                    {
+                        "uuid": "884f9fba39d9407ca8f8dcab79acdb64",
+                        "name": "Validators online percentage",
+                        "type": "EXTERNAL",
+                        "key": "get_validators_load_stats.py[\"--file\",\"{$LOAD.FILE.HOUR}\",\"--verbosity\",\"0\",\"--metric\",\"online\",\"--info\",\"percentage\"]",
+                        "delay": "5m",
+                        "value_type": "FLOAT",
+                        "units": "%"
+                    }
+                ],
+                "macros": [
+                    {
+                        "macro": "{$CONFIG.ACCOUNT.ADDRESS}",
+                        "value": "Ef9VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVbxn"
+                    },
+                    {
+                        "macro": "{$CONFIG.FILE}",
+                        "value": "/usr/local/etc/zabbix6/ton_config.json"
+                    },
+                    {
+                        "macro": "{$LOAD.FILE.HOUR}",
+                        "value": "/tmp/ton_mainnet_validators_load_hourly.json"
+                    },
+                    {
+                        "macro": "{$LOAD.FILE.MAXAGE}",
+                        "value": "300"
+                    },
+                    {
+                        "macro": "{$MASTERCHAIN.TPB.THRESHOLD}",
+                        "value": "40"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -37,7 +37,7 @@ class TonIndexer:
                 data = json.loads(rs)
 
         if not data:
-            self.log.log(os.path.basename(__file__), 3, "Fetching blocks from workchain {} shard {} for {}sec".format(workchain, shard, period))
+            self.log.log(self.__class__.__name__, 3, "Fetching blocks from workchain {} shard {} for {}sec".format(workchain, shard, period))
             params = {
                 "workchain": workchain,
                 "shard": shard,
@@ -49,10 +49,10 @@ class TonIndexer:
             if not len(data):
                 raise Exception("Could not get list of blocks from indexer")
             else:
-                self.log.log(os.path.basename(__file__), 3, "Got {} blocks".format(len(data)))
+                self.log.log(self.__class__.__name__, 3, "Got {} blocks".format(len(data)))
 
             if with_transactions:
-                self.log.log(os.path.basename(__file__), 3, "Extending blocks with transactions")
+                self.log.log(self.__class__.__name__, 3, "Extending blocks with transactions")
                 for idx, element in enumerate(data):
                     data[idx]["transactions"] = self.get_block_transactions(element["workchain"], element["shard"], element["seqno"])
 
@@ -64,7 +64,7 @@ class TonIndexer:
     def get_block_transactions(self, workchain, shard, seqno):
         data = None
 
-        self.log.log(os.path.basename(__file__), 3, "Fetching transactions from workchain {} shard {} seqno {} ".format(workchain, shard, seqno))
+        self.log.log(self.__class__.__name__, 3, "Fetching transactions from workchain {} shard {} seqno {} ".format(workchain, shard, seqno))
         params = {
             "workchain": workchain,
             "shard": shard,
@@ -72,7 +72,7 @@ class TonIndexer:
         }
         data = self.query("getTransactionsInBlock", payload=params)
 
-        self.log.log(os.path.basename(__file__), 3, "Got {} transactions".format(len(data)))
+        self.log.log(self.__class__.__name__, 3, "Got {} transactions".format(len(data)))
 
         return data
 
@@ -85,7 +85,7 @@ class TonIndexer:
                 data = json.loads(rs)
 
         if not data:
-            self.log.log(os.path.basename(__file__), 3, "Fetching transactions from workchain {} shard {} for {}sec".format(workchain, shard, period))
+            self.log.log(self.__class__.__name__, 3, "Fetching transactions from workchain {} shard {} for {}sec".format(workchain, shard, period))
             params = {
                 "workchain": workchain,
                 "shard": shard,
@@ -97,7 +97,7 @@ class TonIndexer:
             if not len(data):
                 raise Exception("Could not get list of transactions from indexer")
             else:
-                self.log.log(os.path.basename(__file__), 3, "Got {} transactions".format(len(data)))
+                self.log.log(self.__class__.__name__, 3, "Got {} transactions".format(len(data)))
 
             if app_config and hasattr(app_config, 'cache_path') and app_config.cache_path:
                 gt.write_cache_file(cache_file, json.dumps(data), self.log)

@@ -12,7 +12,7 @@ class TonElections:
         if "api_token" in self.config and self.config["api_token"]:
             headers["X-API-Key"] = self.config["api_token"]
 
-        self.log.log(os.path.basename(__file__), 3, "Executing {} query.".format(method))
+        self.log.log(self.__class__.__name__, 3, "Executing {} query.".format(method))
         try:
             result = gt.send_api_query(
                 "{}/{}".format(self.config["url"], method),
@@ -45,7 +45,7 @@ class TonElections:
 
     def get_validation_cycles(self, count):
         if self.app_config and hasattr(self.app_config, 'cache_path') and self.app_config.cache_path:
-            self.log.log(os.path.basename(__file__), 3, "Cache path detected.")
+            self.log.log(self.__class__.__name__, 3, "Cache path detected.")
             cache_file = '{}/validation_cycles_{}.json'.format(self.app_config.cache_path,count)
             rs = gt.read_cache_file(cache_file, self.app_config.config["caches"]["ttl"]["validation_cycles"], self.log)
             if rs:

@@ -266,3 +266,27 @@ def archive_file(source, archive_root, subdirs=None, keep_original=False):
         shutil.copyfile(source, target)
     else:
         os.rename(source, target)
+
+def get_file_or_url(source, as_json=False):
+    result = None
+    if check_file_exists(source):
+        with open(source, 'r') as fd:
+            result = fd.read()
+    else:
+        result = requests.get(source).content
+
+    if as_json:
+        result = json.loads(result)
+
+    return result
+
+
+def crop_string(string, length, terminator=""):
+    if len(string) <= length:
+        return string
+    return "{}{}".format(string[0:length-1],terminator)
+
+
+def unique(data):
+    return list(set(data))
+
