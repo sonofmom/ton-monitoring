@@ -4,8 +4,10 @@ import sys
 import os
 import argparse
 import datetime
+import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
+import Libraries.tools.general as gt
 from Classes.AppConfig import AppConfig
 from Classes.TonIndexer import TonIndexer
 
@@ -16,8 +18,7 @@ def run():
     ar.set_standard_args(parser)
     ar.set_config_args(parser)
     ar.set_perf_args(parser)
-    ar.set_blockchain_base_args(parser)
-    ar.set_period_args(parser, 60)
+    ar.set_in_file_args(parser)
     ar.set_transactions_filter_args(parser)
 
     parser.add_argument('-i', '--info',
@@ -41,7 +42,14 @@ def run():
 
     start_time = datetime.datetime.now()
 
-    data = ti.get_transactions(cfg.args.workchain, cfg.args.shard, cfg.args.period, cfg)
+    data = gt.read_cache_file(cfg.args.file, cfg.args.maxage, cfg.log)
+    if data:
+        data = json.loads(data)
+    else:
+        cfg.log.log(os.path.basename(__file__), 1, "File {} does not exist or is older then {} seconds".format(cfg.args.file, cfg.args.maxage))
+        sys.exit(1)
+
+    period = data[0]["utime"] - data[-1]["utime"]
     data = ti.filter_transactions(data, cfg.args.filters, cfg.config["params"])
 
     dataset = []
@@ -56,7 +64,7 @@ def run():
     elif len(dataset) == 0:
         print(0)
     elif cfg.args.info == "rate":
-        print(len(dataset) / cfg.args.period)
+        print(len(dataset) / period)
     elif cfg.args.info == "count":
         print(len(dataset))
     elif cfg.args.info == "percentage":
