@@ -41,6 +41,7 @@ def run():
         cfg.log.log(os.path.basename(__file__), 1, "File {} does not exist or is older then {} seconds".format(cfg.args.file, cfg.args.maxage))
         sys.exit(1)
 
+    period = data[0]["utime"] - data[-1]["utime"]
     data = ti.filter_transactions(data, cfg.args.filters, cfg.config["params"])
 
     runtime = (datetime.datetime.now() - start_time)
@@ -48,7 +49,7 @@ def run():
     if cfg.args.get_time:
         print(runtime.microseconds / 1000)
     elif cfg.args.info == "rate":
-        print(len(data) / cfg.args.period)
+        print(len(data) / period)
     elif cfg.args.info == "count":
         print(len(data))
     else:
