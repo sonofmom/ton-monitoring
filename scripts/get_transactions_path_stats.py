@@ -51,6 +51,7 @@ def run():
         cfg.log.log(os.path.basename(__file__), 1, "File {} does not exist or is older then {} seconds".format(cfg.args.file, cfg.args.maxage))
         sys.exit(1)
 
+    period = data[0]["utime"] - data[-1]["utime"]
     data = ti.filter_transactions(data, cfg.args.filters, cfg.config["params"])
 
     dataset = []
@@ -71,6 +72,8 @@ def run():
             result = sum(dataset)
         elif cfg.args.info == "avg":
             result = sum(dataset) / len(dataset)
+        elif cfg.args.info == "rate":
+            result = sum(dataset) / period
         elif cfg.args.info == "min":
             result = min(dataset)
         elif cfg.args.info == "max":
