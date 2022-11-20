@@ -39,11 +39,16 @@ def run():
 
     runtime = (datetime.datetime.now() - start_time)
 
+    dataset = {
+        'period': cfg.args.period,
+        'data': result
+    }
+
     if cfg.args.output:
         with open(cfg.args.output, 'w') as fd:
-            fd.write(json.dumps(result))
+            fd.write(json.dumps(dataset))
     else:
-        print(json.dumps(result))
+        print(json.dumps(dataset))
 
     if cfg.args.get_time:
         print(runtime.total_seconds())

@@ -26,7 +26,7 @@ def run():
                         default=None,
                         dest='metric',
                         action='store',
-                        help='Metric to collect [transactions_load|gas_load|fee_load] - REQUIRED')
+                        help='Metric to collect [transactions_load|gas_load|fee_load|count] - REQUIRED')
 
     parser.add_argument('-i', '--info',
                         required=True,
@@ -34,7 +34,7 @@ def run():
                         default=None,
                         dest='info',
                         action='store',
-                        help='Information to output [min|avg|max] - REQUIRED')
+                        help='Information to output [min|avg|max|sum] - REQUIRED')
 
     cfg = AppConfig(parser.parse_args())
     ti = TonIndexer(cfg.config["indexer"], cfg.log)
@@ -48,8 +48,10 @@ def run():
         cfg.log.log(os.path.basename(__file__), 1, "File {} does not exist or is older then {} seconds".format(cfg.args.file, cfg.args.maxage))
         sys.exit(1)
 
+    period = data["period"]
+
     dataset = []
-    for element in data:
+    for element in data["data"]:
         if cfg.args.metric == 'transactions_load':
             dataset.append(len(element["transactions"]))
         elif cfg.args.metric == 'gas_load':
@@ -66,6 +68,8 @@ def run():
                     value += gt.nt2t(transaction["fee"])
 
             dataset.append(value)
+        elif cfg.args.metric == 'count':
+            dataset.append(1)
         else:
             cfg.log.log(os.path.basename(__file__), 1, "Unknown metric requested")
             sys.exit(1)
@@ -75,6 +79,10 @@ def run():
         print(runtime.microseconds / 1000)
     elif len(dataset) == 0:
         print(0)
+    elif cfg.args.info == "rate":
+        print(sum(dataset) / period)
+    elif cfg.args.info == "sum":
+        print(sum(dataset))
     elif cfg.args.info == "avg":
         print(sum(dataset) / len(dataset))
     elif cfg.args.info == "min":
