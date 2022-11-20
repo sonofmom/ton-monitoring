@@ -47,9 +47,6 @@ def run():
 
     if cfg.args.get_time:
         print(runtime.total_seconds())
-    else:
-        cfg.log.log(os.path.basename(__file__), 1, "Unknown info requested")
-        sys.exit(1)
 
     sys.exit(0)
 
