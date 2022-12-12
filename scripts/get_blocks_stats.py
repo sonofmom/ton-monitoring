@@ -34,7 +34,7 @@ def run():
                         default=None,
                         dest='info',
                         action='store',
-                        help='Information to output [min|avg|max|sum] - REQUIRED')
+                        help='Information to output [min|avg|max|sum|rate] - REQUIRED')
 
     cfg = AppConfig(parser.parse_args())
     ti = TonIndexer(cfg.config["indexer"], cfg.log)

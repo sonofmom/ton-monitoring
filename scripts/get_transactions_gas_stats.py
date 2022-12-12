@@ -27,7 +27,7 @@ def run():
                         default=None,
                         dest='metric',
                         action='store',
-                        help='Metric to collect [gas_usage|gas_per_step] - REQUIRED')
+                        help='Metric to collect [gas_per_transaction|gas_usage|gas_per_step] - REQUIRED')
 
     parser.add_argument('-i', '--info',
                         required=True,
@@ -54,7 +54,12 @@ def run():
 
     dataset = []
     for element in data:
-        if cfg.args.metric == 'gas_usage':
+        if cfg.args.metric == 'gas_per_transaction':
+            if element["compute_gas_used"]:
+                dataset.append(element["compute_gas_used"])
+            else:
+                dataset.append(0)
+        elif cfg.args.metric == 'gas_usage':
             limit = None
             if element["compute_gas_limit"]:
                 limit = element["compute_gas_limit"]
