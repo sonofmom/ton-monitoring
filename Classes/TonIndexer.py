@@ -13,7 +13,6 @@ class TonIndexer:
         if "api_token" in self.config and self.config["api_token"]:
             headers = {"X-API-Key": self.config["api_token"]}
 
-
         try:
             if not use_chunks:
                 result = gt.send_api_query(
@@ -72,14 +71,16 @@ class TonIndexer:
             self.log.log(self.__class__.__name__, 3, "Fetching blocks from workchain {} shard {} for {}sec".format(workchain, shard, period))
             params = {
                 "workchain": workchain,
-                "shard": shard,
                 "limit": self.config["chunks"]["blocks"],
                 "end_utime": end_time,
                 "start_utime": start_time
             }
+            if shard is not None:
+                params['shard'] = shard
+
             data = self.query("getBlocksByUnixTime", payload=params, use_chunks=True)
 
-            if not len(data):
+            if not isinstance(data,list):
                 raise Exception("Could not get list of blocks from indexer")
             else:
                 self.log.log(self.__class__.__name__, 3, "Got {} blocks".format(len(data)))
@@ -129,14 +130,16 @@ class TonIndexer:
             self.log.log(self.__class__.__name__, 3, "Fetching transactions from workchain {} shard {} for {}sec".format(workchain, shard, period))
             params = {
                 "workchain": workchain,
-                "shard": shard,
                 "limit": self.config["chunks"]["transactions"],
                 "end_utime": end_time,
                 "start_utime": start_time
             }
+            if shard is not None:
+                params['shard'] = shard
+
             data = self.query("getChainLastTransactions", payload=params, use_chunks=True, data_limit=100000)
 
-            if not len(data):
+            if not isinstance(data,list):
                 raise Exception("Could not get list of transactions from indexer")
             else:
                 self.log.log(self.__class__.__name__, 3, "Got {} transactions".format(len(data)))

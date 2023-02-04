@@ -63,10 +63,10 @@ def set_blockchain_base_args(parser):
     parser.add_argument('-s', '--shard',
                         required=False,
                         type=int,
-                        default=-9223372036854775808,
+                        default=None,
                         dest='shard',
                         action='store',
-                        help='Shard - OPTIONAL, default: -9223372036854775808')
+                        help='Shard - OPTIONAL')
 
 def set_period_args(parser, default_value=300):
     parser.add_argument('-p', '--period',
