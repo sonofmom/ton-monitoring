@@ -1,5 +1,6 @@
 import re
 import hashlib
+import base64
 
 class TonNetwork:
     def __init__(self, lite_client, log):
@@ -21,8 +22,17 @@ class TonNetwork:
             self.log.log(self.__class__.__name__, 3, "Result: '{}'".format(res))
             return res
 
-    def check_block_known(self, blockinfo):
-        self.log.log(self.__class__.__name__, 3, "Checking for presence of block '{}'".format(blockinfo))
+    def check_block_known(self, blockid=None, blockjson=None):
+        if not blockid and blockjson:
+            blockid = "({},{},{}):{}:{}".format(
+                blockjson['workchain'],
+                hex(blockjson['shard'])[3:],
+                blockjson['seqno'],
+                base64.b64decode(blockjson['root_hash']).hex().upper(),
+                base64.b64decode(blockjson['file_hash']).hex().upper()
+            )
+
+        self.log.log(self.__class__.__name__, 3, "Checking for presence of block '{}'".format(blockid))
 
         self.log.log(self.__class__.__name__, 3, "Validate LS connectivity.")
         if not self.lc.last():
@@ -30,7 +40,7 @@ class TonNetwork:
             return None
 
         try:
-            stdout = self.lc.exec('gethead {}'.format(blockinfo), True)
+            stdout = self.lc.exec('gethead {}'.format(blockid), True)
         except Exception as e:
             self.log.log(self.__class__.__name__, 1, "Could not execute `gethead`: {}".format(str(e)))
             return None

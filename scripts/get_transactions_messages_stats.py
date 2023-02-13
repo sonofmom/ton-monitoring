@@ -36,7 +36,7 @@ def run():
                         default=None,
                         dest='info',
                         action='store',
-                        help='Information to output [transaction_rate|time_rate|count] - REQUIRED')
+                        help='Information to output [transaction_rate|time_rate|count|e2i_ratio|i2e_ratio] - REQUIRED')
 
     cfg = AppConfig(parser.parse_args())
     ti = TonIndexer(cfg.config["indexer"], cfg.log)
@@ -51,11 +51,11 @@ def run():
         sys.exit(1)
 
     period = data["period"]
-    data = ti.filter_transactions(data['data'], cfg.args.filters, cfg.config["params"])
+    transactions = ti.filter_transactions(data['data'], cfg.args.filters, cfg.config["params"])
 
     dataset = {}
-    if data:
-        for element in data:
+    if transactions:
+        for element in transactions:
             if element['in_msg']:
                 insert_message(message_check(element['in_msg'], cfg.args.mtype), dataset)
 
@@ -64,15 +64,28 @@ def run():
                     insert_message(message_check(message, cfg.args.mtype), dataset)
 
     runtime = (datetime.datetime.now() - start_time)
-
     if cfg.args.get_time:
         print(runtime.microseconds / 1000)
     elif cfg.args.info == "transaction_rate":
-        print(len(dataset) / len(data))
+        print(len(dataset) / len(transactions))
     elif cfg.args.info == "time_rate":
         print(len(dataset) / period)
     elif cfg.args.info == "count":
         print(len(dataset))
+    elif cfg.args.info in ["e2i_ratio","i2e_ratio"]:
+        int = 0
+        ext = 0
+        for element in dataset:
+            if dataset[element]['source']:
+                int += 1
+            else:
+                ext += 1
+        if int == 0 or ext == 0:
+            print(0)
+        elif cfg.args.info == "e2i_ratio":
+            print (ext/int)
+        else:
+            print (int/ext)
     else:
         cfg.log.log(os.path.basename(__file__), 1, "Unknown info requested")
         sys.exit(1)

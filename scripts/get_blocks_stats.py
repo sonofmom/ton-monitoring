@@ -26,7 +26,7 @@ def run():
                         default=None,
                         dest='metric',
                         action='store',
-                        help='Metric to collect [transactions_load|gas_load|fee_load|count] - REQUIRED')
+                        help='Metric to collect [transactions_load|gas_load|fee_load|count|shards] - REQUIRED')
 
     parser.add_argument('-i', '--info',
                         required=True,
@@ -34,7 +34,7 @@ def run():
                         default=None,
                         dest='info',
                         action='store',
-                        help='Information to output [min|avg|max|sum|rate] - REQUIRED')
+                        help='Information to output [min|avg|max|sum|rate|count] - REQUIRED')
 
     cfg = AppConfig(parser.parse_args())
     ti = TonIndexer(cfg.config["indexer"], cfg.log)
@@ -70,6 +70,9 @@ def run():
             dataset.append(value)
         elif cfg.args.metric == 'count':
             dataset.append(1)
+        elif cfg.args.metric == 'shards':
+            if element['shard'] not in dataset:
+                dataset.append(element['shard'])
         else:
             cfg.log.log(os.path.basename(__file__), 1, "Unknown metric requested")
             sys.exit(1)
@@ -89,6 +92,8 @@ def run():
         print(min(dataset))
     elif cfg.args.info == "max":
         print(max(dataset))
+    elif cfg.args.info == "count":
+        print(len(dataset))
     else:
         cfg.log.log(os.path.basename(__file__), 1, "Unknown info requested")
         sys.exit(1)

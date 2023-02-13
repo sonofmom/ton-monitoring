@@ -4,7 +4,7 @@ import re
 
 
 class LiteClient:
-    def __init__(self, args, config, log):
+    def __init__(self, args, config, log, ls_addr=None, ls_key=None):
         self.log = log
         self.config = config
         self.ls_addr = None
@@ -13,6 +13,11 @@ class LiteClient:
         if "ls_addr" in args:
             self.ls_addr = args.ls_addr
             self.ls_key = args.ls_key
+        elif ls_addr:
+            self.ls_addr = ls_addr
+            self.ls_key = ls_key
+        elif "global_config" in args:
+            self.ls_config = args.global_config
         else:
             self.ls_config = self.config["config"]
 
@@ -21,7 +26,7 @@ class LiteClient:
         self.log.log(self.__class__.__name__, 3, 'liteServer key    : {}'.format(str(self.ls_key)))
         self.log.log(self.__class__.__name__, 3, 'liteServer config : {}'.format(str(self.ls_config)))
 
-    def exec(self, cmd, nothrow=False, wait=None):
+    def exec(self, cmd, nothrow=False, wait=None, index=None):
         self.log.log(self.__class__.__name__, 3, 'Executing command : {}'.format(cmd))
         if self.ls_addr:
             args = [self.config["bin"],
@@ -32,8 +37,13 @@ class LiteClient:
         else:
             args = [self.config["bin"],
                     "--global-config", self.ls_config,
-                    "--verbosity", "0",
-                    "--cmd", cmd]
+                    "--verbosity", "0"]
+            if index is not None:
+                args.append("--idx")
+                args.append(str(index))
+
+            args.append("--cmd")
+            args.append(cmd)
 
         if nothrow:
             process = subprocess.run(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -120,22 +130,25 @@ class LiteClient:
         data = data.replace("\n", '')
         return re.findall('x\{(.*?)\}', data)
 
-    def last(self):
+    def last(self, index=None):
         self.log.log(self.__class__.__name__, 3, 'Retrieving last block info')
 
         try:
-            output = self.exec('last')
+            output = self.exec('last', index=index)
         except Exception as e:
-            self.log.log(self.__class__.__name__, 1, "Could not execute `last`: " + str(e))
+            self.log.log(self.__class__.__name__, 1, "Could not execute `last`: {}".format(str(e)))
             return None
 
-        match = re.match(r'.+server is (.*) created at \d* \((\d+) seconds ago\)', output, re.M | re.I)
+        match = re.match(r'.+server is (.*) created at \d* \((\d+) seconds ago\)', output, re.DOTALL)
         if match:
             self.log.log(self.__class__.__name__, 3, 'Last block {} seconds ago'.format(match.group(2)))
             return {
                 'ago': match.group(2),
                 'block': self.parse_block_info(match.group(1))
             }
+        else:
+            self.log.log(self.__class__.__name__, 1, "Could not parse `last` output")
+            return None
 
     def parse_block_info(self, as_string):
         match = re.match(r'\((-?\d*),(\d*),(\d*)\)|(\w*):(\w*).+', as_string, re.M | re.I)
