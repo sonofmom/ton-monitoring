@@ -83,6 +83,11 @@ class LiteClient:
             self.log.log(self.__class__.__name__, 1, msg)
             raise Exception(msg)
 
+    def parse_runmethod_output(self, output):
+        match = re.match(r'.+result\:\s+\[ (.*) \].*', output, re.DOTALL)
+        if match:
+            return match.group(1)
+
     # Based on https://github.com/ton-blockchain/mytonctrl
     #
     def parse_output(self, text, path):

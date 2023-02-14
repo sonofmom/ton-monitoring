@@ -4,7 +4,6 @@ import argparse
 import datetime
 import json
 import os
-import re
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
@@ -27,7 +26,7 @@ def run():
                         default=None,
                         dest='metric',
                         action='store',
-                        help='Metric to collect [dht_success_rate|dht_latency|ls_online|ls_sync|ls_archival|ls_with_init_block] - REQUIRED')
+                        help='Metric to collect [dht_records|dht_success_rate|dht_latency|ls_records|ls_online|ls_sync|ls_archival|ls_with_init_block] - REQUIRED')
 
     parser.add_argument('-i', '--info',
                         required=True,
@@ -60,7 +59,9 @@ def run():
             for element in data['liteservers']:
                 if cfg.args.key is not None and cfg.args.key != element['key']:
                     continue
-                if cfg.args.metric == 'ls_online':
+                if cfg.args.metric == 'ls_records':
+                    dataset.append(1)
+                elif cfg.args.metric == 'ls_online':
                     if element['last']:
                         dataset.append(1)
                 elif cfg.args.metric == 'ls_archival':
@@ -82,7 +83,9 @@ def run():
                 if cfg.args.key is not None and cfg.args.key != element['hash']:
                     continue
 
-                if cfg.args.metric == 'dht_success_rate':
+                if cfg.args.metric == 'dht_records':
+                    dataset.append(1)
+                elif cfg.args.metric == 'dht_success_rate':
                     dataset.append(element['success_rate'])
                 elif cfg.args.metric == 'dht_latency':
                     if element['latency'] is not None:
