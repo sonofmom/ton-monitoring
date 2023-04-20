@@ -9,7 +9,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
 import Libraries.tools.general as gt
 from Classes.AppConfig import AppConfig
-from Classes.TonIndexer import TonIndexer
 
 def run():
     description = 'Performs analysis of blocks using ton indexer service.'
@@ -37,7 +36,6 @@ def run():
                         help='Information to output [min|avg|max|sum|rate|count] - REQUIRED')
 
     cfg = AppConfig(parser.parse_args())
-    ti = TonIndexer(cfg.config["indexer"], cfg.log)
 
     start_time = datetime.datetime.now()
 
