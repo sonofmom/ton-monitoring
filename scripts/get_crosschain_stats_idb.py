@@ -13,11 +13,10 @@ import Libraries.tools.general as gt
 from Classes.AppConfig import AppConfig
 
 def run():
-    description = 'Performs analysis of blocks using direct access to ton indexer database.'
+    description = 'Performs analysis of crosschain blocks statistics using direct access to ton indexer database.'
     parser = argparse.ArgumentParser(formatter_class = argparse.RawDescriptionHelpFormatter,
                                     description = description)
     ar.set_standard_args(parser)
-    ar.set_blockchain_base_args(parser)
     ar.set_config_args(parser)
     ar.set_perf_args(parser)
     ar.set_period_args(parser, 60)
@@ -28,7 +27,7 @@ def run():
                         default=None,
                         dest='metric',
                         action='store',
-                        help='Metric to collect [latency|crosschain_latency] - REQUIRED')
+                        help='Metric to collect [children_latency_min|children_latency_avg|children_latency_max|children_count] - REQUIRED')
 
     parser.add_argument('-F', '--filters',
                         required=False,
@@ -60,12 +59,18 @@ def run():
     db_table = None
     db_field = None
 
-    if cfg.args.metric == 'latency':
-        db_table = 'v_recent_blocks_latency'
-        db_field = 'latency'
-    elif cfg.args.metric == 'crosschain_latency':
-        db_table = 'v_recent_blocks_crosschain_latency'
-        db_field = 'crosschain_latency'
+    if cfg.args.metric == 'children_latency_min':
+        db_table = 'v_recent_blocks_crosschain_statistics'
+        db_field = 'children_latency_min'
+    elif cfg.args.metric == 'children_latency_avg':
+        db_table = 'v_recent_blocks_crosschain_statistics'
+        db_field = 'children_latency_avg'
+    elif cfg.args.metric == 'children_latency_max':
+        db_table = 'v_recent_blocks_crosschain_statistics'
+        db_field = 'children_latency_max'
+    elif cfg.args.metric == 'children_count':
+        db_table = 'v_recent_blocks_crosschain_statistics'
+        db_field = 'children_count'
     else:
         cfg.log.log(os.path.basename(__file__), 1, "Unknown metric requested")
         sys.exit(1)
@@ -78,12 +83,6 @@ def run():
                         {table}.gen_utime >= %s""".format(table=db_table, field=db_field)
 
     args = [int(gt.get_datetime_utc(gt.get_timestamp() - cfg.args.period).timestamp())]
-
-    sql += " AND {}.workchain = %s".format(db_table)
-    args.append(cfg.args.workchain)
-    if cfg.args.shard:
-        sql += " AND {}.shard = %s".format(db_table)
-        args.append(cfg.args.shard)
 
     rows = dbc.execute(sql,args).fetchall()
 
@@ -143,7 +142,6 @@ def filter_record(record, filters):
             return None
 
     return record
-
 
 if __name__ == '__main__':
     run()

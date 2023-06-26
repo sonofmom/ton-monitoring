@@ -35,6 +35,25 @@ def set_liteserver_args(parser):
                         action='store',
                         help='LiteServer base64 key as encoded in network config - REQUIRED')
 
+def set_console_args(parser):
+    parser.add_argument('-a', '--addr',
+                        required=False,
+                        dest='server_address',
+                        action='store',
+                        help='Node / server console address:port - OPTIONAL')
+
+    parser.add_argument('-k', '--client-key',
+                        required=False,
+                        dest='client_key',
+                        action='store',
+                        help='Client key file - OPTIONAL')
+
+    parser.add_argument('-K', '--server-key',
+                        required=False,
+                        dest='server_key',
+                        action='store',
+                        help='Server key file - OPTIONAL')
+
 
 def set_in_file_args(parser):
     parser.add_argument('-f', '--file',
@@ -51,11 +70,11 @@ def set_in_file_args(parser):
                         action='store',
                         help='Maximum age of data file in seconds - OPTIONAL')
 
-def set_blockchain_base_args(parser):
+def set_blockchain_base_args(parser, default_workchain=-1):
     parser.add_argument('-w', '--workchain',
                         required=False,
                         type=int,
-                        default=-1,
+                        default=default_workchain,
                         dest='workchain',
                         action='store',
                         help='Workchain - OPTIONAL, default: -1')
