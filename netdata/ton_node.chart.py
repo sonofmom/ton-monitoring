@@ -71,6 +71,12 @@ class Service(SimpleService):
                 "--verbosity", "0",
                 "--cmd", cmd]
 
-        process = subprocess.run(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                 timeout=3)
-        return process.stdout.decode("utf-8")
+        try:
+            process = subprocess.run(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                     timeout=3)
+            return process.stdout.decode("utf-8")
+        except Exception as e:
+            print("Console execution exception {}".format(str(e)))
+            return None
+
+
