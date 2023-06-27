@@ -1,0 +1,11 @@
+node_sync:
+    name: "TON node sync"
+    update_every: 1
+    priority: 60000
+    penalty: yes
+    autodetection_retry: 0
+    validator_console_bin: "/usr/bin/ton/validator-engine-console/validator-engine-console"
+    validator_console_client_key: "/var/ton-work/keys/client"
+    validator_console_server_key: "/var/ton-work/keys/server.pub"
+    validator_console_node_address: "127.0.0.1"
+    validator_console_node_port: 11111

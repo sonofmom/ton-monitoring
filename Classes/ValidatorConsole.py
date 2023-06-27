@@ -129,19 +129,6 @@ class ValidatorConsole:
         else:
             return None
 
-        a = output.split("\n")
-
-        match = re.match(r'.+server is (.*) created at \d* \((\d+) seconds ago\)', output, re.DOTALL)
-        if match:
-            self.log.log(self.__class__.__name__, 3, 'Last block {} seconds ago'.format(match.group(2)))
-            return {
-                'ago': match.group(2),
-                'block': self.parse_block_info(match.group(1))
-            }
-        else:
-            self.log.log(self.__class__.__name__, 1, "Could not parse `last` output")
-            return None
-
     def parse_block_info(self, as_string):
         match = re.match(r'\((-?\d*),(\d*),(\d*)\)|(\w*):(\w*).+', as_string, re.M | re.I)
         if match:
