@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 #
-
 import os
 import sys
 import argparse
 import json
 import re
-import glob
 import subprocess
+import time
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.tools.general as gt
 import Libraries.arguments as ar
@@ -65,7 +64,7 @@ def run(cfg):
 
     cfg.log.log(os.path.basename(__file__), 3, "Extracting number of Signal crashes from main log file '{}'".format(cfg.config["files"]["main_log"]))
     data["statistics"] = {
-        "signal_crashes": len(gt.ton_log_tail_n_seek(cfg.config["files"]["main_log"], cfg.args.period, "Signal"))
+        "signal_crashes": len(gt.ton_log_tail_n_seek(parse_dates(cfg.config["files"]["main_log"]), cfg.args.period, "Signal"))
     }
 
     if cfg.args.output:
@@ -75,6 +74,13 @@ def run(cfg):
         f.close()
     else:
         print(json.dumps(data))
+
+def parse_dates(string):
+    lt = time.localtime(time.time())
+    string = string.replace("##YYYY##", time.strftime("%Y", lt))
+    string = string.replace("##MM##", time.strftime("%m", lt))
+    string = string.replace("##DD##", time.strftime("%d", lt))
+    return string
 
 def slow_count(file, period, data):
     lines = gt.ton_log_tail_n_seek(file, period)

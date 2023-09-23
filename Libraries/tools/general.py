@@ -144,6 +144,10 @@ def ton_log_tail_n_seek(file, time_offset, grep = None):
         while True:
             loop += 1
             bytes_offset = file_size - buffer_size * loop
+            if bytes_offset < 0:
+                bytes_offset = 0
+                break
+
             fh.seek(bytes_offset)
             chunk = fh.read(buffer_size)
             chunk_ts = parse_log_timestamp(chunk)
