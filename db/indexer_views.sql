@@ -17,6 +17,26 @@ WHERE
         blocks.block_id = block_headers.block_id
   AND block_headers.gen_utime > (EXTRACT(EPOCH FROM NOW()) - 86400)::BIGINT;
 
+
+drop view v_week_blocks cascade;
+CREATE VIEW public.v_week_blocks as
+SELECT
+    blocks.workchain,
+    blocks.shard,
+    blocks.seqno,
+    blocks.root_hash,
+    blocks.file_hash,
+    blocks.masterchain_block_id,
+    block_headers.*,
+    TO_TIMESTAMP(block_headers.gen_utime) as gen_ts
+FROM
+    blocks,
+    block_headers
+WHERE
+        blocks.block_id = block_headers.block_id
+  AND block_headers.gen_utime > (EXTRACT(EPOCH FROM NOW()) - 604800)::BIGINT;
+
+
 drop view v_recent_blocks_latency cascade;
 CREATE VIEW public.v_recent_blocks_latency as
 WITH tmp_data as (SELECT
@@ -33,6 +53,24 @@ WITH tmp_data as (SELECT
                       v_recent_blocks)
 SELECT * from tmp_data where latency is not null;
 ;
+
+drop view v_week_blocks_latency cascade;
+CREATE VIEW public.v_week_blocks_latency as
+WITH tmp_data as (SELECT
+                      v_week_blocks.*,
+                      v_week_blocks.gen_utime - LAG(v_week_blocks.gen_utime)
+                                                  OVER (
+                                                      PARTITION BY
+                                                          v_week_blocks.workchain
+                                                      ORDER BY
+                                                          v_week_blocks.seqno
+                                                      )
+                          AS "latency"
+                  FROM
+                      v_week_blocks)
+SELECT * from tmp_data where latency is not null;
+;
+
 
 drop view v_recent_blocks_crosschain_latency cascade;
 CREATE VIEW public.v_recent_blocks_crosschain_latency as

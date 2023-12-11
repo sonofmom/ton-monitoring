@@ -87,42 +87,44 @@ def run():
         for element in network_config['liteservers']:
             result['liteservers'].append(result_stack[element['id']['key']])
 
+    cf = '/tmp/{}.json'.format(gt.ran_string(10))
+    with open(cf, "w") as fd:
+        fd.write(json.dumps(network_config))
+
     if cfg.args.mode in ['all', 'dht']:
         cfg.log.log(os.path.basename(__file__), 3, 'Checking {} dht servers'.format(len(network_config['dht']['static_nodes']['nodes'])))
-        cf = '/tmp/{}.json'.format(gt.ran_string(10))
-        with open(cf, "w") as fd:
-            fd.write(json.dumps(network_config))
-            args = [
-                cfg.config['dht_ping']['bin'],
-                '--global-config', cf,
-                '--port', str(cfg.config['dht_ping']['port']),
-                "--verbosity", "0"
-            ]
-            process = subprocess.run(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                     timeout=60)
-            out = process.stdout.decode("utf-8")
-            if out:
-                for line in out.splitlines():
-                    match = re.match(r'(.+) : (\d)/(\d)( \(.+ = )?([\d|\.]+)?', line, re.DOTALL)
+        args = [
+            cfg.config['dht_ping']['bin'],
+            '--global-config', cf,
+            '--port', str(cfg.config['dht_ping']['port']),
+            "--verbosity", "0"
+        ]
+        process = subprocess.run(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 timeout=60)
+        out = process.stdout.decode("utf-8")
+        if out:
+            for line in out.splitlines():
+                match = re.match(r'(.+) : (\d)/(\d)( \(.+ = )?([\d|\.]+)?', line, re.DOTALL)
 
-                    if match:
-                        record = {
-                            'hash': match.group(1),
-                            'answers_received': int(match.group(2)),
-                            'queries_sent': int(match.group(3)),
-                            'success_rate': 0,
-                            'latency': None
-                        }
+                if match:
+                    record = {
+                        'hash': match.group(1),
+                        'answers_received': int(match.group(2)),
+                        'queries_sent': int(match.group(3)),
+                        'success_rate': 0,
+                        'latency': None
+                    }
 
-                        if len(match.groups()) == 5 and match.group(5):
-                            record['latency'] = float(match.group(5))
+                    if len(match.groups()) == 5 and match.group(5):
+                        record['latency'] = float(match.group(5))
 
-                        if record['answers_received']:
-                            record['success_rate'] = (record['answers_received'] / record['queries_sent']) * 100
+                    if record['answers_received']:
+                        record['success_rate'] = (record['answers_received'] / record['queries_sent']) * 100
 
-                        result['dht'].append(record)
+                    result['dht'].append(record)
 
-            os.unlink(cf)
+
+    os.unlink(cf)
 
     if cfg.args.output:
         cfg.log.log(os.path.basename(__file__), 3, "Writing output to '{}'".format(cfg.args.output))

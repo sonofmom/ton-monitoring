@@ -9,7 +9,7 @@ class TonIndexer:
         self.config = config
         self.log = log
 
-    def query(self, method, payload=None, headers=None, use_chunks=False, data_limit=10000):
+    def query(self, method, payload=None, headers=None, use_chunks=False, data_limit=100000):
         if "api_token" in self.config and self.config["api_token"]:
             headers = {"X-API-Key": self.config["api_token"]}
 
