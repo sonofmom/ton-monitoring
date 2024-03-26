@@ -51,7 +51,7 @@ class TonIndexer:
 
     def get_blocks(self, workchain, shard, period=30, start_time=None, end_time=None, app_config=None, with_transactions=False):
         data = None
-        if app_config and hasattr(app_config, 'cache_path') and app_config.cache_path:
+        if app_config and hasattr(app_config, 'cache_path') and app_config.cache_path and not (start_time or end_time):
             if with_transactions:
                 cache_file = '{}/index_blocks_{}_{}_{}_with_transactions.json'.format(app_config.cache_path, workchain, shard, period)
             else:
@@ -68,7 +68,7 @@ class TonIndexer:
             if not start_time:
                 start_time = end_time - period
 
-            self.log.log(self.__class__.__name__, 3, "Fetching blocks from workchain {} shard {} for {}sec".format(workchain, shard, period))
+            self.log.log(self.__class__.__name__, 3, "Fetching blocks from workchain {} shard {} for period {} to {} ({}sec)".format(workchain, shard, start_time, end_time, period))
             params = {
                 "workchain": workchain,
                 "limit": self.config["chunks"]["blocks"],

@@ -96,6 +96,14 @@ def set_period_args(parser, default_value=300):
                         action='store',
                         help='Load data for last X seconds - OPTIONAL, default: {}'.format(default_value))
 
+    parser.add_argument('-O', '--period-offset',
+                        required=False,
+                        type=int,
+                        default=0,
+                        dest='period_offset',
+                        action='store',
+                        help='Offset period end by value - OPTIONAL, default: 0')
+
 def set_transactions_filter_args(parser):
     parser.add_argument('-F', '--filter',
                         required=False,

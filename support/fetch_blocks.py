@@ -7,6 +7,7 @@ import datetime
 import json
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 import Libraries.arguments as ar
+import Libraries.tools.general as gt
 from Classes.AppConfig import AppConfig
 from Classes.TonIndexer import TonIndexer
 
@@ -34,16 +35,21 @@ def run():
                         default=1,
                         dest='load_transactions',
                         action='store',
-                        help='Load transactions [0|1] OPTIONAL, defaults to 1')
+                        help='Load transactions [0|1] - OPTIONAL, defaults to 1')
 
     cfg = AppConfig(parser.parse_args())
     ti = TonIndexer(cfg.config["indexer"], cfg.log)
 
     start_time = datetime.datetime.now()
 
+    end_time = None
+    if cfg.args.period_offset:
+        end_time = gt.get_timestamp() - cfg.args.period_offset
+
     result = ti.get_blocks(workchain=cfg.args.workchain,
                                shard=cfg.args.shard,
                                period=cfg.args.period,
+                               end_time=end_time,
                                with_transactions=(cfg.args.load_transactions == 1))
 
     runtime = (datetime.datetime.now() - start_time)
