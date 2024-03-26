@@ -95,7 +95,78 @@ WHERE
 
 drop view v_recent_blocks_crosschain_statistics;
 CREATE VIEW public.v_recent_blocks_crosschain_statistics as
-WITH tmp_data as (
+WITH
+    tmp_data as (
+        SELECT
+            v_recent_blocks.masterchain_block_id,
+            min(v_recent_blocks.gen_utime) as gen_utime_min,
+            round(avg(v_recent_blocks.gen_utime)) as gen_utime_avg,
+            max(v_recent_blocks.gen_utime) as gen_utime_max,
+            count(v_recent_blocks.gen_utime) as wc_block_load
+        FROM
+            v_recent_blocks
+        WHERE
+            v_recent_blocks.workchain >= 0
+        GROUP BY
+            v_recent_blocks.masterchain_block_id
+    ),
+    tmp_data2 as (
+        SELECT
+            v_recent_blocks.block_id,
+            v_recent_blocks.gen_utime - tmp_data.gen_utime_min as children_latency_max,
+            v_recent_blocks.gen_utime - tmp_data.gen_utime_avg as children_latency_avg,
+            v_recent_blocks.gen_utime - tmp_data.gen_utime_max as children_latency_min,
+            tmp_data.wc_block_load as children_count
+        FROM
+            v_recent_blocks,
+            tmp_data
+        WHERE
+            v_recent_blocks.workchain = -1
+          AND tmp_data.masterchain_block_id = v_recent_blocks.block_id
+    )
+SELECT
+    v_recent_blocks.*,
+    tmp_data2.children_latency_max,
+    tmp_data2.children_latency_avg,
+    tmp_data2.children_latency_min,
+    tmp_data2.children_count
+FROM
+    v_recent_blocks
+        LEFT JOIN tmp_data2 ON
+        tmp_data2.block_id = v_recent_blocks.block_id
+WHERE
+    v_recent_blocks.workchain = -1
+;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE VIEW public.v_recent_blocks_crosschain_statistics as
+WITH
+tmp_data as (
     SELECT
         v_recent_blocks.masterchain_block_id,
         min(v_recent_blocks.gen_utime) as gen_utime_min,

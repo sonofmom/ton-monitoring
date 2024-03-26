@@ -28,6 +28,14 @@ def run():
                         action='store',
                         help='Write output to indicated file instead of stdout')
 
+    parser.add_argument('-t', '--load-transactions',
+                        required=False,
+                        type=int,
+                        default=1,
+                        dest='load_transactions',
+                        action='store',
+                        help='Load transactions [0|1] OPTIONAL, defaults to 1')
+
     cfg = AppConfig(parser.parse_args())
     ti = TonIndexer(cfg.config["indexer"], cfg.log)
 
@@ -36,7 +44,7 @@ def run():
     result = ti.get_blocks(workchain=cfg.args.workchain,
                                shard=cfg.args.shard,
                                period=cfg.args.period,
-                               with_transactions=True)
+                               with_transactions=(cfg.args.load_transactions == 1))
 
     runtime = (datetime.datetime.now() - start_time)
 

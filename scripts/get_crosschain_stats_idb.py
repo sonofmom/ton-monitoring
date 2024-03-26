@@ -101,7 +101,10 @@ def run():
 
     dataset = []
     for element in data:
-        dataset.append(element['value'])
+        if element['value'] is not None:
+            dataset.append(element['value'])
+        elif cfg.args.metric == 'children_count':
+            dataset.append(0)
 
     runtime = (datetime.datetime.now() - start_time)
     if cfg.args.get_time:
