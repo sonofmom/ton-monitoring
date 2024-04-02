@@ -65,8 +65,10 @@ def run():
         except Exception as e:
             raise Exception("Query failed: {}".format(str(e)))
 
-        if cfg.args.info == 'failure_rate':
+        if cfg.args.info == 'unprocessed_rate':
             result = round(rs['not_processed'] / rs['count'] * 100, 2)
+        elif cfg.args.info == 'processed_rate':
+            result = round(100 - (rs['not_processed'] / rs['count'] * 100), 2)
         elif cfg.args.info in rs:
             result = rs[cfg.args.info]
         else:
