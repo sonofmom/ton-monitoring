@@ -39,5 +39,16 @@
     "git_repositories": {
       "node": "https://api.github.com/repos/ton-blockchain/ton/commits?per_page=100"
     }
+  },
+  "clickhouse": {
+    "host": "acme",
+    "port": 8123,
+    "secure": false,
+    "verify": false,
+    "dbname": "mainnet",
+    "credentials_ro": {
+      "user": "john",
+      "password": "doe"
+    }
   }
 }

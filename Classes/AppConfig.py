@@ -49,5 +49,4 @@ class AppConfig:
                 if not (os.path.exists(self.cache_path) and os.path.isdir(self.cache_path) and os.access(self.cache_path, os.W_OK)):
                     self.log.log(self.__class__.__name__, 1, "Cache path {} could not be created or is not writable".format(self.cache_path))
                     sys.exit(1)
-
 # end class

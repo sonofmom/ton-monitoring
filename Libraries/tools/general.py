@@ -12,7 +12,9 @@ import sys
 import time
 import base64
 import shutil
+import hashlib
 from pathlib import Path
+from collections import OrderedDict
 
 
 def check_path_exists(path):
@@ -294,3 +296,50 @@ def crop_string(string, length, terminator=""):
 def unique(data):
     return list(set(data))
 
+def write_if_not_exists(file, content, mode='w', log=None):
+    if not check_file_exists(file):
+        with open(file, mode) as fd:
+            fd.write(content)
+    elif log:
+        log.log(os.path.basename(__file__), 2, "File '{}' exists and will not be overwritten".format(file))
+
+def sha256(bytes=None, b64=None):
+    if b64:
+        bytes = base64.b64decode(b64)
+
+    if bytes:
+        return hashlib.sha256(bytes).hexdigest()
+    else:
+        return None
+
+def filter_dict_by_key_range(dict, min, max, sort=False):
+    result = {k: v for k, v in dict.items() if int(k) >= min and int(k) <= max}
+    if sort:
+        result = OrderedDict(sorted(result.items()))
+
+    return result
+
+
+def filer_data_by_type(data, type, fallback=None):
+    if isinstance(data, type):
+        return data
+    else:
+        return fallback
+
+
+def gen_validator_pubkey_hash(pubkey):
+    return base64.b64encode(
+        hashlib.sha256(
+            bytes.fromhex('C6B41348{}'.format(pubkey))
+        ).digest()
+    ).decode()
+
+def dict_by_map(data, map):
+    result = []
+    for element in data:
+        row = {}
+        for idx, val in enumerate(element):
+            row[map[idx]] = val
+        result.append(row)
+
+    return result
