@@ -29,6 +29,9 @@ def run():
 
     tic = TonIndexerCh(config=cfg.config, log=cfg.log)
     shards = tic.get_shards(seqno=cfg.args.seqno)
+    for shard in shards:
+        for element in shard:
+            shard[element] = str(shard[element])
 
     if shards:
         print(json.dumps(shards, indent=4))
