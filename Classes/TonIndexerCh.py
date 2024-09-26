@@ -52,4 +52,14 @@ class TonIndexerCh:
         if rs.result_rows:
             return gt.dict_by_map(rs.result_rows, rs.column_names)[0]
 
+    def get_blocks_count(self, workchain, shards=None, period=60, offset=0):
+        sql = "select count(*) as count from blocks where workchain = {}".format(workchain)
+        if shards:
+            sql += " and shard in {}".format(','.join(shards))
+        sql += " and gen_utime <= date_sub(SECOND, {}, now())".format(offset)
+        sql += " and gen_utime >= date_sub(SECOND, {}, now());".format(offset+period)
+        rs = self.dbc.query(sql)
+        if rs.result_rows:
+            return gt.dict_by_map(rs.result_rows, rs.column_names)[0]['count']
+
 # end class
