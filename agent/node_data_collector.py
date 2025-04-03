@@ -62,10 +62,15 @@ def run(cfg):
     cfg.log.log(os.path.basename(__file__), 3, "Finding out PID for process '{}'".format(cfg.config["files"]["validator_engine"]))
     data["validator-engine-pid"] = gt.get_process_pid(cfg.config["files"]["validator_engine"])
 
+    data["statistics"] = {}
+    cfg.log.log(os.path.basename(__file__), 3, "Parsing main rocksdb stats file '{}/db_stats.txt'".format(cfg.config["files"]["node_db"]))
+    data['statistics']['db'] = parse_db_stats("{}/db_stats.txt".format(cfg.config["files"]["node_db"]))
+
+    cfg.log.log(os.path.basename(__file__), 3, "Parsing celldb rocksdb stats file '{}/celldb/db_stats.txt'".format(cfg.config["files"]["node_db"]))
+    data['statistics']['celldb'] = parse_db_stats("{}/celldb/db_stats.txt".format(cfg.config["files"]["node_db"]))
+
     cfg.log.log(os.path.basename(__file__), 3, "Extracting number of Signal crashes from main log file '{}'".format(cfg.config["files"]["main_log"]))
-    data["statistics"] = {
-        "signal_crashes": len(gt.ton_log_tail_n_seek(parse_dates(cfg.config["files"]["main_log"]), cfg.args.period, "Signal"))
-    }
+    data["statistics"]["signal_crashes"] = len(gt.ton_log_tail_n_seek(parse_dates(cfg.config["files"]["main_log"]), cfg.args.period, "Signal"))
 
     if cfg.args.output:
         cfg.log.log(os.path.basename(__file__), 3, "Writing output to '{}'".format(cfg.args.output))
@@ -92,6 +97,23 @@ def slow_count(file, period, data):
                 if subsys not in data:
                     data[subsys] = {"raw": []}
                 data[subsys]["raw"].append(float(match.group(2)))
+
+def parse_db_stats(path: str):
+    with open(path) as f:
+        lines = f.readlines()
+    result = {}
+    for line in lines:
+        s = line.strip().split(maxsplit=1)
+        items = re.findall(r"(\S+)\s:\s(\S+)", s[1])
+        if len(items) == 1:
+            item = items[0]
+            if float(item[1]) > 0:
+                result[s[0].replace(".", "_")] = float(item[1])
+        else:
+            if any(float(v) > 0 for k, v in items):
+                result[s[0].replace(".", "_")] = {}
+                result[s[0].replace(".", "_")] = {k: float(v) for k, v in items}
+    return result
 
 if __name__ == '__main__':
     run(init())
