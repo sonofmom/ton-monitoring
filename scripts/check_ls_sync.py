@@ -19,12 +19,18 @@ def run():
     ar.set_config_args(parser)
     ar.set_perf_args(parser)
     ar.set_liteserver_args(parser)
+    parser.add_argument('-S', '--shardclient',
+                        required=False,
+                        dest='shard_client',
+                        const=True,
+                        action='store_const',
+                        help='Check workchain / shard client instead of masterchain - OPTIONAL')
 
     cfg = AppConfig(parser.parse_args())
     lc = LiteClient(cfg.args, cfg.config["liteClient"], cfg.log)
 
     start_time = datetime.datetime.now()
-    result  = lc.last()
+    result  = lc.last(shard_client=cfg.args.shard_client)
     runtime = (datetime.datetime.now() - start_time)
     if not result:
         cfg.log.log(os.path.basename(__file__), 1, 'Could not retrieve information.')

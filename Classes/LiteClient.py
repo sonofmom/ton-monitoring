@@ -135,16 +135,25 @@ class LiteClient:
         data = data.replace("\n", '')
         return re.findall('x\{(.*?)\}', data)
 
-    def last(self, index=None):
-        self.log.log(self.__class__.__name__, 3, 'Retrieving last block info')
+    def last(self, index=None, shard_client=False):
+        if shard_client:
+            command = "lastshardclient"
+        else:
+            command = "last"
+
+        self.log.log(self.__class__.__name__, 3, 'Retrieving {} block info'.format(command))
 
         try:
-            output = self.exec('last', index=index)
+            output = self.exec(cmd=command, index=index)
         except Exception as e:
-            self.log.log(self.__class__.__name__, 1, "Could not execute `last`: {}".format(str(e)))
+            self.log.log(self.__class__.__name__, 1, "Could not execute `{}`: {}".format(command,str(e)))
             return None
 
-        match = re.match(r'.+server is (.*) created at \d* \((\d+) seconds ago\)', output, re.DOTALL)
+        if shard_client:
+            match = re.match(r'.+block in shard client state is (.*) created at \d* \((\d+) seconds ago\)', output, re.DOTALL)
+        else:
+            match = re.match(r'.+server is (.*) created at \d* \((\d+) seconds ago\)', output, re.DOTALL)
+
         if match:
             self.log.log(self.__class__.__name__, 3, 'Last block {} seconds ago'.format(match.group(2)))
             return {
